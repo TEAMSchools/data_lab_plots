@@ -421,6 +421,40 @@
       color: var(--muted);
     }
 
+    /* ── Security flow ────────────────────────────────────────────── */
+    .sec-flow { display: flex; align-items: stretch; gap: 0; overflow-x: auto; min-width: 700px; }
+    .sec-step { flex: 1; background: var(--navy-lt); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem 1rem; text-align: center; }
+    .sec-step.hl { background: rgba(0,201,177,.1); border-color: var(--teal); }
+    .sec-step .step-num { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: var(--teal); color: var(--navy); font-size: .75rem; font-weight: 800; margin-bottom: .6rem; }
+    .sec-step h4 { font-size: .8rem; margin-bottom: .3rem; color: var(--text); text-transform: none; letter-spacing: 0; }
+    .sec-step p  { font-size: .75rem; line-height: 1.4; }
+    .sec-arrow { flex: 0 0 2rem; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 1.2rem; }
+
+    /* ── JWT anatomy ──────────────────────────────────────────────── */
+    .jwt-block { background: #0a1520; border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; font-family: var(--font-mono); font-size: .78rem; line-height: 1.9; overflow-x: auto; }
+    .jh { color: #fb923c; } .jp { color: #86efac; } .js { color: #a78bfa; }
+    .jk { color: var(--accent); } .jv { color: var(--teal); } .jstr { color: #c3e88d; } .jc { color: #4a6480; font-style: italic; }
+
+    /* ── Groups table ─────────────────────────────────────────────── */
+    .groups-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    .groups-table th { padding: .85rem 1rem; text-align: left; font-size: .75rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); border-bottom: 1px solid var(--border); background: var(--navy-lt); }
+    .groups-table td { padding: .85rem 1rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .groups-table tr:last-child td { border-bottom: none; }
+    .groups-table tr:hover td { background: rgba(255,255,255,.02); }
+    .gname { font-family: var(--font-mono); font-size: .78rem; color: var(--teal); }
+    .ac { display: flex; flex-wrap: wrap; gap: .3rem; }
+    .ap { display: inline-flex; align-items: center; gap: .25rem; border-radius: 20px; padding: .2rem .6rem; font-size: .72rem; font-weight: 600; }
+    .ap.full    { background: rgba(82,212,143,.12); color: var(--good); }
+    .ap.partial { background: rgba(79,200,235,.12); color: var(--accent); }
+    .ap.none    { background: rgba(244,162,97,.10);  color: var(--warn); }
+
+    /* ── FERPA callout ────────────────────────────────────────────── */
+    .callout { border-radius: var(--radius); padding: 1.25rem 1.5rem; display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 3rem; }
+    .callout-ferpa { background: rgba(82,212,143,.07); border: 1px solid rgba(82,212,143,.2); }
+    .callout-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .callout-body strong { display: block; color: var(--text); font-size: .9rem; margin-bottom: .25rem; }
+    .callout-body p { font-size: .85rem; }
+
     /* ── Animations ───────────────────────────────────────────────── */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(20px); }
@@ -441,6 +475,7 @@
     <ul class="nav-links">
       <li><a href="#problem">The Problem</a></li>
       <li><a href="#solution">The Solution</a></li>
+      <li><a href="#security">Security</a></li>
       <li><a href="#capabilities">Capabilities</a></li>
       <li><a href="#apps">Apps Built</a></li>
       <li><a href="#roadmap">Roadmap</a></li>
