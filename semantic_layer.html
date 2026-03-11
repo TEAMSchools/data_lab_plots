@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Semantic Layer | Data Team Initiative</title>
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --teal:    #00c9b1;
+      --teal-dk: #009e8c;
+      --navy:    #0d1b2a;
+      --navy-md: #162232;
+      --navy-lt: #1e3048;
+      --slate:   #2e4460;
+      --text:    #e8edf3;
+      --muted:   #8ea3bb;
+      --border:  #243447;
+      --card:    #162232;
+      --accent:  #4fc8eb;
+      --warn:    #f4a261;
+      --good:    #52d48f;
+      --radius:  12px;
+      --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --font-mono: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--navy);
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 16px;
+    }
+    a { color: var(--teal); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    img { max-width: 100%; }
+
+    /* ── Typography ───────────────────────────────────────────────── */
+    h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; line-height: 1.1; }
+    h2 { font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 700; line-height: 1.2; }
+    h3 { font-size: 1.2rem; font-weight: 700; }
+    h4 { font-size: 1rem; font-weight: 600; color: var(--teal); text-transform: uppercase; letter-spacing: .08em; }
+    p  { color: var(--muted); }
+
+    /* ── Layout Helpers ───────────────────────────────────────────── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+    .section   { padding: 5rem 0; }
+    .section--alt { background: var(--navy-md); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
+    @media (max-width: 900px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .grid-4 { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 520px) { .grid-4 { grid-template-columns: 1fr; } }
+
+    /* ── Tag / Badge ──────────────────────────────────────────────── */
+    .tag {
+      display: inline-block;
+      padding: .2em .7em;
+      border-radius: 20px;
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .tag--teal  { background: rgba(0,201,177,.15); color: var(--teal); }
+    .tag--blue  { background: rgba(79,200,235,.15); color: var(--accent); }
+    .tag--warn  { background: rgba(244,162,97,.15);  color: var(--warn); }
+    .tag--good  { background: rgba(82,212,143,.15);  color: var(--good); }
+
+    /* ── Button ───────────────────────────────────────────────────── */
+    .btn {
+      display: inline-block;
+      padding: .75rem 1.75rem;
+      border-radius: var(--radius);
+      font-weight: 700;
+      font-size: .95rem;
+      transition: filter .2s, transform .15s;
+      cursor: pointer;
+    }
+    .btn:hover { filter: brightness(1.1); transform: translateY(-1px); text-decoration: none; }
+    .btn-primary { background: var(--teal); color: var(--navy); }
+    .btn-ghost   { border: 2px solid var(--border); color: var(--text); background: transparent; }
+    .btn-ghost:hover { border-color: var(--teal); color: var(--teal); }
+
+    /* ── Nav ──────────────────────────────────────────────────────── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(13,27,42,.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    nav .inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+    }
+    .nav-logo {
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: var(--teal);
+      letter-spacing: -.01em;
+    }
+    .nav-logo span { color: var(--text); font-weight: 400; }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { color: var(--muted); font-size: .9rem; font-weight: 500; transition: color .2s; }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+    @media (max-width: 640px) { .nav-links { display: none; } }
+
+    /* ── Hero ─────────────────────────────────────────────────────── */
+    .hero {
+      padding: 7rem 0 5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,201,177,.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero .eyebrow {
+      margin-bottom: 1.25rem;
+    }
+    .hero h1 {
+      margin-bottom: 1.25rem;
+      background: linear-gradient(135deg, var(--text) 40%, var(--teal) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p.lead {
+      font-size: 1.2rem;
+      max-width: 680px;
+      margin: 0 auto 2.5rem;
+      color: var(--muted);
+    }
+    .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+    /* ── Stats strip ──────────────────────────────────────────────── */
+    .stats-strip {
+      background: var(--navy-md);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 2.5rem 0;
+    }
+    .stats-inner {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--teal);
+      line-height: 1;
+    }
+    .stat-label { font-size: .85rem; color: var(--muted); margin-top: .25rem; }
+
+    /* ── Section Header ───────────────────────────────────────────── */
+    .section-header { text-align: center; margin-bottom: 3.5rem; }
+    .section-header h4 { margin-bottom: .5rem; }
+    .section-header h2 { margin-bottom: 1rem; }
+    .section-header p  { max-width: 600px; margin: 0 auto; font-size: 1.05rem; }
+
+    /* ── Problem Cards ────────────────────────────────────────────── */
+    .problem-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .problem-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--warn);
+    }
+    .problem-card .icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    .problem-card h3 { margin-bottom: .5rem; }
+
+    /* ── Solution Architecture ────────────────────────────────────── */
+    .arch-wrap {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2.5rem;
+      overflow-x: auto;
+    }
+    .arch-diagram {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      min-width: 680px;
+    }
+    .arch-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: .75rem;
+    }
+    .arch-box {
+      background: var(--navy-lt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .85rem 1rem;
+      font-size: .82rem;
+      font-weight: 600;
+      text-align: center;
+    }
+    .arch-box.highlight {
+      background: rgba(0,201,177,.12);
+      border-color: var(--teal);
+      color: var(--teal);
+      font-size: .9rem;
+    }
+    .arch-arrow {
+      flex: 0 0 2.5rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 1.4rem;
+    }
+    .arch-label {
+      text-align: center;
+      font-size: .75rem;
+      color: var(--muted);
+      margin-top: .5rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    /* ── Feature Cards ────────────────────────────────────────────── */
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      transition: border-color .2s, transform .2s;
+    }
+    .feature-card:hover {
+      border-color: var(--teal);
+      transform: translateY(-3px);
+    }
+    .feature-card .feat-icon {
+      width: 48px; height: 48px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      background: rgba(0,201,177,.12);
+    }
+    .feature-card h3 { margin-bottom: .5rem; }
+
+    /* ── App Demos ────────────────────────────────────────────────── */
+    .app-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color .2s, transform .2s;
+    }
+    .app-card:hover { border-color: var(--teal); transform: translateY(-3px); }
+    .app-card-header {
+      background: var(--navy-lt);
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+    .app-card-icon { font-size: 1.5rem; }
+    .app-card-header h3 { font-size: 1rem; margin: 0; }
+    .app-card-body { padding: 1.5rem; }
+    .app-card-body p { font-size: .9rem; margin-bottom: 1rem; }
+    .metric-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      background: var(--navy-lt);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: .25rem .75rem;
+      font-size: .78rem;
+      font-weight: 600;
+      margin: .2rem;
+      color: var(--text);
+    }
+    .metric-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); }
+
+    /* ── Code Snippet ─────────────────────────────────────────────── */
+    .code-block {
+      background: #0a1520;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      font-family: var(--font-mono);
+      font-size: .82rem;
+      overflow-x: auto;
+      line-height: 1.7;
+    }
+    .code-block .c  { color: #4a6480; }
+    .code-block .k  { color: #c792ea; }
+    .code-block .s  { color: #c3e88d; }
+    .code-block .f  { color: var(--accent); }
+    .code-block .v  { color: var(--teal); }
+    .code-block .n  { color: var(--warn); }
+    .code-block .p  { color: var(--text); }
+
+    /* ── Comparison Table ─────────────────────────────────────────── */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .9rem;
+    }
+    .compare-table th {
+      padding: 1rem 1.25rem;
+      text-align: left;
+      font-size: .8rem;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .compare-table td {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table .col-before { color: var(--muted); }
+    .compare-table .col-after  { color: var(--good); }
+    .compare-table .col-label  { font-weight: 700; color: var(--text); }
+    .compare-table tr:hover td { background: rgba(255,255,255,.02); }
+    .check { color: var(--good); }
+    .cross { color: var(--warn); }
+
+    /* ── Quote Block ──────────────────────────────────────────────── */
+    .quote-block {
+      background: rgba(0,201,177,.07);
+      border-left: 4px solid var(--teal);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 1.5rem 2rem;
+      margin: 2rem 0;
+    }
+    .quote-block p { color: var(--text); font-size: 1.05rem; font-style: italic; }
+    .quote-block cite { display: block; margin-top: .75rem; font-size: .85rem; color: var(--teal); font-style: normal; font-weight: 600; }
+
+    /* ── Stack List ───────────────────────────────────────────────── */
+    .stack-list { list-style: none; display: flex; flex-direction: column; gap: .75rem; }
+    .stack-list li {
+      display: flex; align-items: flex-start; gap: .75rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+    }
+    .stack-list .s-icon { font-size: 1.2rem; flex-shrink: 0; }
+    .stack-list .s-text { font-size: .9rem; color: var(--muted); }
+    .stack-list .s-text strong { color: var(--text); display: block; margin-bottom: .1rem; }
+
+    /* ── Timeline ─────────────────────────────────────────────────── */
+    .timeline { position: relative; padding-left: 2rem; }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: .5rem;
+      top: 0; bottom: 0;
+      width: 2px;
+      background: var(--border);
+    }
+    .tl-item { position: relative; margin-bottom: 2rem; }
+    .tl-item::before {
+      content: '';
+      position: absolute;
+      left: -1.6rem;
+      top: .35rem;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--teal);
+      border: 2px solid var(--navy-md);
+    }
+    .tl-item h3 { margin-bottom: .25rem; }
+    .tl-item p  { font-size: .9rem; }
+
+    /* ── CTA ──────────────────────────────────────────────────────── */
+    .cta-section {
+      padding: 6rem 0;
+      text-align: center;
+      background: radial-gradient(ellipse 70% 80% at 50% 50%, rgba(0,201,177,.1) 0%, transparent 70%);
+    }
+    .cta-section h2 { margin-bottom: 1rem; }
+    .cta-section p  { max-width: 560px; margin: 0 auto 2rem; font-size: 1.05rem; }
+    .cta-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+    /* ── Footer ───────────────────────────────────────────────────── */
+    footer {
+      background: var(--navy-md);
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      font-size: .85rem;
+      color: var(--muted);
+    }
+
+    /* ── Animations ───────────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate { animation: fadeUp .6s ease both; }
+    .delay-1 { animation-delay: .1s; }
+    .delay-2 { animation-delay: .2s; }
+    .delay-3 { animation-delay: .3s; }
+  </style>
+</head>
+<body>
+
+<!-- ── Navigation ───────────────────────────────────────────────────── -->
+<nav>
+  <div class="inner">
+    <div class="nav-logo">semantic<span>layer</span></div>
+    <ul class="nav-links">
+      <li><a href="#problem">The Problem</a></li>
+      <li><a href="#solution">The Solution</a></li>
+      <li><a href="#capabilities">Capabilities</a></li>
+      <li><a href="#apps">Apps Built</a></li>
+      <li><a href="#roadmap">Roadmap</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ── Hero ─────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="container">
+    <div class="eyebrow animate">
+      <span class="tag tag--teal">Data Team Initiative · 2026</span>
+    </div>
+    <h1 class="animate delay-1">One Source of Truth<br/>for Every Data Question</h1>
+    <p class="lead animate delay-2">
+      We're building a <strong style="color:var(--teal)">semantic layer</strong> — a trusted, governed
+      translation between raw data and every dashboard, report, and AI tool across the organization.
+      Stop debating numbers. Start making decisions.
+    </p>
+    <div class="hero-actions animate delay-3">
+      <a href="#solution" class="btn btn-primary">See How It Works</a>
+      <a href="#apps" class="btn btn-ghost">View What We Built</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── Stats ─────────────────────────────────────────────────────────── -->
+<div class="stats-strip">
+  <div class="container">
+    <div class="stats-inner">
+      <div class="stat">
+        <div class="stat-num">∞</div>
+        <div class="stat-label">Teams asking the same questions<br/>and getting different answers</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">1</div>
+        <div class="stat-label">Semantic layer to define<br/>every metric, once</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">2</div>
+        <div class="stat-label">Self-service apps already<br/>live on the platform</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">0</div>
+        <div class="stat-label">SQL required to explore<br/>attendance or staff data</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Problem ───────────────────────────────────────────────────────── -->
+<section class="section" id="problem">
+  <div class="container">
+    <div class="section-header">
+      <h4>The Problem</h4>
+      <h2>Data Without a Semantic Layer Is Broken</h2>
+      <p>Every team builds their own queries, their own definitions, and their own
+        dashboards — and they rarely agree.</p>
+    </div>
+    <div class="grid-3">
+      <div class="problem-card">
+        <div class="icon">🔀</div>
+        <h3>Inconsistent Metrics</h3>
+        <p>Attendance means something different in every report. One team counts days,
+          another counts events. Leadership gets three different numbers for the same question.</p>
+      </div>
+      <div class="problem-card">
+        <div class="icon">⏳</div>
+        <h3>Data Team as Bottleneck</h3>
+        <p>Every question requires a ticket, a SQL query, and a two-week wait.
+          Non-technical staff can't access the data they need to do their jobs.</p>
+      </div>
+      <div class="problem-card">
+        <div class="icon">🏝️</div>
+        <h3>Siloed Systems</h3>
+        <p>SIS, LMS, HRIS, assessments — each system lives in its own world.
+          Combining them requires deep tribal knowledge that lives in one person's head.</p>
+      </div>
+      <div class="problem-card">
+        <div class="icon">🔓</div>
+        <h3>No Access Control</h3>
+        <p>Either everyone can see everything (a FERPA nightmare) or nobody can see
+          anything. There's no middle ground for role-based, row-level data access.</p>
+      </div>
+      <div class="problem-card">
+        <div class="icon">🤖</div>
+        <h3>AI Has No Foundation</h3>
+        <p>LLMs are powerful, but asking an AI to query raw data is asking it to
+          guess your definitions. Without governed semantics, AI answers are unreliable.</p>
+      </div>
+      <div class="problem-card">
+        <div class="icon">🔄</div>
+        <h3>Duplicated Work</h3>
+        <p>The same join logic, the same business rules, and the same filters get
+          written over and over across dozens of reports by dozens of people.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Solution ──────────────────────────────────────────────────────── -->
+<section class="section section--alt" id="solution">
+  <div class="container">
+    <div class="section-header">
+      <h4>The Solution</h4>
+      <h2>A Semantic Layer Fixes All of This</h2>
+      <p>A semantic layer sits between your raw data warehouse and every tool that
+        consumes data — defining business logic once, in one place, for everyone.</p>
+    </div>
+
+    <div class="arch-wrap">
+      <div style="margin-bottom:1.5rem">
+        <h3 style="font-size:1rem;margin-bottom:.25rem">How data flows through the stack</h3>
+        <p style="font-size:.85rem">The semantic layer (Cube) transforms raw warehouse tables into
+          governed, reusable <em>views</em>, <em>measures</em>, and <em>dimensions</em>.</p>
+      </div>
+      <div class="arch-diagram">
+        <div class="arch-col">
+          <div class="arch-box">SIS / Enrollment</div>
+          <div class="arch-box">HRIS / Staff</div>
+          <div class="arch-box">Attendance Logs</div>
+          <div class="arch-box">Assessment Data</div>
+          <div class="arch-label">Source Systems</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-col">
+          <div class="arch-box">Data Warehouse<br/><small style="color:var(--muted);font-weight:400">dbt models</small></div>
+          <div class="arch-label">Transformed Tables</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-col">
+          <div class="arch-box highlight" style="font-size:1rem;padding:1.5rem 1rem;">
+            ⚡ Semantic Layer<br/>
+            <small style="font-weight:400;color:var(--muted);font-size:.78rem">
+              Cube · Measures · Dimensions<br/>
+              Views · Access Control · Caching
+            </small>
+          </div>
+          <div class="arch-label">Single Source of Truth</div>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-col">
+          <div class="arch-box">Streamlit Apps</div>
+          <div class="arch-box">Dashboards (BI Tools)</div>
+          <div class="arch-box">AI / LLM Queries</div>
+          <div class="arch-box">Ad-hoc Analysis</div>
+          <div class="arch-label">Consumers</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:3rem">
+      <div class="quote-block">
+        <p>"Define it once. Every tool, every team, every AI query gets the same trusted answer —
+          with access control baked in at every layer."</p>
+        <cite>— The principle behind a semantic layer</cite>
+      </div>
+    </div>
+
+    <div style="margin-top:2.5rem">
+      <h3 style="margin-bottom:1.5rem">Before &amp; After</h3>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>Scenario</th>
+              <th>❌ Without Semantic Layer</th>
+              <th>✅ With Semantic Layer</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="col-label">Defining "attendance rate"</td>
+              <td class="col-before">Each analyst writes their own formula. Reports disagree.</td>
+              <td class="col-after">One definition in Cube. Every dashboard uses it automatically.</td>
+            </tr>
+            <tr>
+              <td class="col-label">Getting data without SQL</td>
+              <td class="col-before">Not possible. Submit a ticket. Wait two weeks.</td>
+              <td class="col-after">Self-service Streamlit app. Answers in seconds.</td>
+            </tr>
+            <tr>
+              <td class="col-label">Row-level data access</td>
+              <td class="col-before">Manual filtering in every query. Prone to error.</td>
+              <td class="col-after">User identity embedded in JWT. Cube enforces access automatically.</td>
+            </tr>
+            <tr>
+              <td class="col-label">Asking AI about your data</td>
+              <td class="col-before">AI guesses table structures. Hallucinations. Unreliable.</td>
+              <td class="col-after">AI queries governed views. Accurate, in-context answers.</td>
+            </tr>
+            <tr>
+              <td class="col-label">Adding a new dashboard</td>
+              <td class="col-before">Rewrite all joins and business logic from scratch.</td>
+              <td class="col-after">Point a new app at an existing Cube view. Done in hours.</td>
+            </tr>
+            <tr>
+              <td class="col-label">Metric changes when logic changes</td>
+              <td class="col-before">Update every report, every query, everywhere. Miss some.</td>
+              <td class="col-after">Update the definition once in Cube. Everywhere is correct.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Capabilities ──────────────────────────────────────────────────── -->
+<section class="section" id="capabilities">
+  <div class="container">
+    <div class="section-header">
+      <h4>Capabilities</h4>
+      <h2>What Our Semantic Layer Can Do</h2>
+      <p>Built on Cube, our semantic layer provides a full stack of data capabilities —
+        from governed access to AI-powered interpretation.</p>
+    </div>
+    <div class="grid-3">
+      <div class="feature-card">
+        <div class="feat-icon">📐</div>
+        <h3>Governed Metrics</h3>
+        <p>Every measure and dimension is defined in code — versioned, reviewed, and
+          consistent across every tool that consumes it.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon">🔒</div>
+        <h3>Row-Level Security</h3>
+        <p>User identity and group membership are embedded in signed JWT tokens.
+          Cube enforces data access policies automatically — no manual filtering needed.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon">⚡</div>
+        <h3>Pre-Aggregation & Caching</h3>
+        <p>Common queries are pre-computed and cached. Complex aggregations that used
+          to take minutes return in milliseconds.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon">🤖</div>
+        <h3>AI-Ready Data</h3>
+        <p>Our AI layer (Google Gemini 2.5) queries governed views — not raw tables —
+          so answers are accurate, contextualized, and FERPA-compliant.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon">🔌</div>
+        <h3>Universal API</h3>
+        <p>One REST API works for all consumers: custom apps, BI tools, notebooks,
+          and AI agents. Build once, connect anything.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon">🧩</div>
+        <h3>Self-Service Exploration</h3>
+        <p>Non-technical staff can filter, pivot, and visualize data in purpose-built
+          apps — no SQL, no tickets, no waiting.</p>
+      </div>
+    </div>
+
+    <!-- Code example -->
+    <div style="margin-top:3rem">
+      <h3 style="margin-bottom: 1rem">What querying the semantic layer looks like</h3>
+      <p style="margin-bottom:1.25rem;font-size:.9rem">
+        Instead of writing SQL joins across five tables, any consumer — app, AI, or analyst —
+        calls one structured API. The semantic layer handles the rest.
+      </p>
+      <div class="code-block">
+<span class="c"># Ask: how many students are enrolled per grade level this year?</span>
+<span class="c"># Zero SQL. Zero joins. Zero guessing at table names.</span>
+<br/>
+<span class="n">rows</span> <span class="p">= </span><span class="n">client</span><span class="p">.</span><span class="f">query</span><span class="p">(</span>
+    <span class="v">measures</span>    <span class="p">=</span> <span class="p">[</span><span class="s">"Students.count"</span><span class="p">],</span>
+    <span class="v">dimensions</span>  <span class="p">=</span> <span class="p">[</span><span class="s">"Students.gradeLevel"</span><span class="p">],</span>
+    <span class="v">filters</span>     <span class="p">=</span> <span class="p">[</span>
+        <span class="f">CubeFilter</span><span class="p">(</span><span class="s">"Students.schoolYear"</span><span class="p">, </span><span class="s">"equals"</span><span class="p">, [</span><span class="s">"2025-2026"</span><span class="p">]),</span>
+        <span class="f">CubeFilter</span><span class="p">(</span><span class="s">"Students.enrollmentStatus"</span><span class="p">, </span><span class="s">"equals"</span><span class="p">, [</span><span class="s">"Active"</span><span class="p">]),</span>
+    <span class="p">],</span>
+    <span class="v">order</span>       <span class="p">=</span> <span class="p">{</span><span class="s">"Students.gradeLevel"</span><span class="p">: </span><span class="s">"asc"</span><span class="p">},</span>
+<span class="p">)</span>
+<br/>
+<span class="c"># Returns clean, typed rows — ready for charts, tables, or AI interpretation</span>
+<span class="c"># [{"Students.gradeLevel": "K",  "Students.count": 145},</span>
+<span class="c">#  {"Students.gradeLevel": "1",  "Students.count": 152}, ...]</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Apps Built ─────────────────────────────────────────────────────── -->
+<section class="section section--alt" id="apps">
+  <div class="container">
+    <div class="section-header">
+      <h4>What We've Built</h4>
+      <h2>Live Apps on the Semantic Layer</h2>
+      <p>Two self-service analytics apps are already running — proof that the platform
+        works and delivers immediate value without any SQL knowledge required.</p>
+    </div>
+    <div class="grid-2" style="gap:1.5rem;margin-bottom:3rem">
+
+      <div class="app-card">
+        <div class="app-card-header">
+          <div class="app-card-icon">📅</div>
+          <div>
+            <span class="tag tag--teal" style="font-size:.65rem;margin-bottom:.3rem">Live</span>
+            <h3>Attendance Explorer</h3>
+          </div>
+        </div>
+        <div class="app-card-body">
+          <p>Interactive dashboard for exploring attendance metrics across any
+            dimension — grade level, school, enrollment status, time period — with
+            zero SQL required.</p>
+          <div style="margin-bottom:1rem">
+            <strong style="font-size:.8rem;color:var(--text);display:block;margin-bottom:.5rem">Available metrics &amp; cuts</strong>
+            <span class="metric-pill"><span class="dot"></span>Attendance Rate</span>
+            <span class="metric-pill"><span class="dot"></span>Absence Count</span>
+            <span class="metric-pill"><span class="dot"></span>Student Count</span>
+            <span class="metric-pill"><span class="dot"></span>By Grade Level</span>
+            <span class="metric-pill"><span class="dot"></span>By School</span>
+            <span class="metric-pill"><span class="dot"></span>By School Year</span>
+            <span class="metric-pill"><span class="dot"></span>By Enrollment Status</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.5rem">
+            <div style="display:flex;align-items:center;gap:.5rem;font-size:.85rem">
+              <span class="check">✓</span>
+              <span style="color:var(--text)">Google OAuth login with domain restriction</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:.5rem;font-size:.85rem">
+              <span class="check">✓</span>
+              <span style="color:var(--text)">Interactive Plotly charts + data table</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:.5rem;font-size:.85rem">
+              <span class="check">✓</span>
+              <span style="color:var(--text)">AI summary + conversational Q&amp;A (Gemini 2.5)</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:.5rem;font-size:.85rem">
+              <span class="check">✓</span>
+              <span style="color:var(--text)">Row-level security via JWT user context</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="app-card">
+        <div class="app-card-header">
+          <div class="app-card-icon">👥</div>
+          <div>
+            <span class="tag tag--teal" style="font-size:.65rem;margin-bottom:.3rem">Live</span>
+            <h3>Staff &amp; People Explorer</h3>
+          </div>
+        </div>
+        <div class="app-card-body">
+          <p>Self-service workforce analytics for HR and school leadership — explore
+            staff composition, headcount, and distribution without submitting a data request.</p>
+          <div style="margin-bottom:1rem">
+            <strong style="font-size:.8rem;color:var(--text);display:block;margin-bottom:.5rem">Available metrics &amp; cuts</strong>
+            <span class="metric-pill"><span class="dot"></span>Staff Count</span>
+            <span class="metric-pill"><span class="dot"></span>FTE</span>
+            <span class="metric-pill"><span class="dot"></span>By Department</span>
+            <span class="metric-pill"><span class="dot"></span>By Role</span>
+            <span class="metric-pill"><span class="dot"></span>By Tenure Status</span>
+            <span class="metric-pill"><span class="dot"></span>By School</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.5rem">
+            <div style="display:flex;align-items:center;gap:.5rem;font-size:.85rem">
+              <span class="check">✓</span>
+              <span style="color:var(--text)">Google OAuth login with domain restriction</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:.5rem;font-size:.85rem">
+              <span class="check">✓</span>
+              <span style="color:var(--text)">Interactive Plotly charts + data table</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:.5rem;font-size:.85rem">
+              <span class="check">✓</span>
+              <span style="color:var(--text)">AI summary + conversational Q&amp;A (Gemini 2.5)</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:.5rem;font-size:.85rem">
+              <span class="check">✓</span>
+              <span style="color:var(--text)">Row-level security via JWT user context</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- AI Feature callout -->
+    <div style="background:linear-gradient(135deg,rgba(0,201,177,.08),rgba(79,200,235,.05));border:1px solid rgba(0,201,177,.25);border-radius:var(--radius);padding:2.5rem;">
+      <div class="grid-2" style="align-items:start">
+        <div>
+          <h4 style="margin-bottom:.5rem">AI-Powered Interpretation</h4>
+          <h3 style="font-size:1.5rem;margin-bottom:1rem">Talk to your data, not your analyst</h3>
+          <p style="margin-bottom:1.25rem">
+            Every app includes an embedded AI layer powered by Google Gemini 2.5 Flash.
+            Users can auto-generate plain-language summaries of their data, or ask
+            follow-up questions in natural language — all within the safety of governed,
+            access-controlled views.
+          </p>
+          <p>
+            AI guardrails keep responses grounded in the actual data — no hallucinations,
+            no speculation beyond what the semantic layer knows, no off-topic responses.
+          </p>
+        </div>
+        <div>
+          <div style="background:var(--navy);border:1px solid var(--border);border-radius:10px;padding:1.25rem;font-size:.85rem;">
+            <div style="display:flex;gap:.5rem;margin-bottom:.75rem;">
+              <span style="width:10px;height:10px;border-radius:50%;background:#ff5f57;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#febc2e;display:inline-block;"></span>
+              <span style="width:10px;height:10px;border-radius:50%;background:#28c840;display:inline-block;"></span>
+              <span style="color:var(--muted);font-size:.75rem;margin-left:.25rem">AI Chat Panel</span>
+            </div>
+            <div style="background:rgba(0,201,177,.07);border-radius:8px;padding:.75rem;margin-bottom:.5rem;color:var(--text)">
+              <strong style="font-size:.75rem;color:var(--teal);display:block;margin-bottom:.25rem">📊 Auto Summary</strong>
+              Attendance rates declined across all grade levels in November, with 5th grade showing the steepest drop at 4.2 percentage points. The pattern is consistent with prior-year trends...
+            </div>
+            <div style="background:var(--navy-lt);border-radius:8px;padding:.75rem;margin-bottom:.5rem;color:var(--muted);font-style:italic;font-size:.82rem;">
+              💬 "Which schools have the lowest attendance this semester?"
+            </div>
+            <div style="background:rgba(0,201,177,.07);border-radius:8px;padding:.75rem;color:var(--text);font-size:.82rem;">
+              <strong style="font-size:.75rem;color:var(--teal);display:block;margin-bottom:.25rem">🤖 AI Response</strong>
+              Based on the current data selection, Lincoln Elementary and Washington Middle School show the lowest attendance rates at 89.1% and 88.7% respectively...
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Tech Stack ─────────────────────────────────────────────────────── -->
+<section class="section" id="stack">
+  <div class="container">
+    <div class="grid-2" style="gap:4rem;align-items:start">
+      <div>
+        <h4 style="margin-bottom:.5rem">Technology</h4>
+        <h2 style="margin-bottom:1rem">Built on a Modern,<br/>Open Stack</h2>
+        <p style="margin-bottom:2rem">
+          Every component is production-grade, open-source-friendly, and
+          designed to grow with the organization — not lock you into a vendor.
+        </p>
+        <ul class="stack-list">
+          <li>
+            <span class="s-icon">⚡</span>
+            <div class="s-text">
+              <strong>Cube.dev — Semantic Layer</strong>
+              OLAP engine that defines measures, dimensions, and views.
+              Pre-aggregates queries and enforces access policies.
+            </div>
+          </li>
+          <li>
+            <span class="s-icon">🐍</span>
+            <div class="s-text">
+              <strong>Python + Streamlit — App Layer</strong>
+              Rapid web app development. A new dashboard can be live in hours by
+              pointing at any existing Cube view.
+            </div>
+          </li>
+          <li>
+            <span class="s-icon">🤖</span>
+            <div class="s-text">
+              <strong>Google Gemini 2.5 Flash — AI Layer</strong>
+              Fast, cost-effective LLM for data interpretation. Queries only
+              governed views — no raw table access.
+            </div>
+          </li>
+          <li>
+            <span class="s-icon">🔐</span>
+            <div class="s-text">
+              <strong>Google OAuth 2.0 + JWT — Auth Layer</strong>
+              Single sign-on with existing Google Workspace accounts.
+              Row-level security embedded in signed tokens.
+            </div>
+          </li>
+          <li>
+            <span class="s-icon">📊</span>
+            <div class="s-text">
+              <strong>Plotly — Visualization Layer</strong>
+              Interactive, publication-quality charts rendered directly in the browser.
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="margin-bottom:.5rem">Roadmap</h4>
+        <h2 style="margin-bottom:1.5rem">Where We're Headed</h2>
+        <div class="timeline">
+          <div class="tl-item">
+            <span class="tag tag--good" style="font-size:.7rem;margin-bottom:.4rem">Done</span>
+            <h3>Core Platform &amp; First Views</h3>
+            <p>CubeClient, authentication, JWT security, and the first two self-service
+              apps (attendance + staff) are live.</p>
+          </div>
+          <div class="tl-item">
+            <span class="tag tag--teal" style="font-size:.7rem;margin-bottom:.4rem">In Progress</span>
+            <h3>Expand Semantic Views</h3>
+            <p>Add Cube views for assessments, enrollment trends, course completion,
+              and financial data — unlocking new self-service domains.</p>
+          </div>
+          <div class="tl-item">
+            <span class="tag tag--blue" style="font-size:.7rem;margin-bottom:.4rem">Next</span>
+            <h3>BI Tool Integration</h3>
+            <p>Connect Tableau, Power BI, and Looker Studio directly to the semantic
+              layer — so every existing dashboard automatically gets governed metrics.</p>
+          </div>
+          <div class="tl-item">
+            <span class="tag tag--warn" style="font-size:.7rem;margin-bottom:.4rem">Planned</span>
+            <h3>Org-Wide AI Data Assistant</h3>
+            <p>A conversational interface where any staff member can ask data questions
+              in plain English and get accurate, access-controlled answers.</p>
+          </div>
+          <div class="tl-item">
+            <span class="tag tag--warn" style="font-size:.7rem;margin-bottom:.4rem">Planned</span>
+            <h3>Metric Catalog &amp; Data Literacy</h3>
+            <p>A public-facing dictionary of every defined metric — what it means,
+              how it's calculated, and where it comes from.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Why Now ────────────────────────────────────────────────────────── -->
+<section class="section section--alt">
+  <div class="container">
+    <div class="section-header">
+      <h4>The Case for Now</h4>
+      <h2>Why This Is the Right Investment</h2>
+      <p>A semantic layer isn't just a technical upgrade — it's a structural shift
+        in how the organization relates to its own data.</p>
+    </div>
+    <div class="grid-4">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;text-align:center;">
+        <div style="font-size:2rem;margin-bottom:.75rem">🎯</div>
+        <h3 style="font-size:1rem;margin-bottom:.4rem">Faster Decisions</h3>
+        <p style="font-size:.85rem">Leaders get answers in seconds, not weeks. Data-informed decisions happen at the speed of the work.</p>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;text-align:center;">
+        <div style="font-size:2rem;margin-bottom:.75rem">🛡️</div>
+        <h3 style="font-size:1rem;margin-bottom:.4rem">FERPA Compliance</h3>
+        <p style="font-size:.85rem">Access control is structural, not procedural. Every query is filtered by user identity automatically.</p>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;text-align:center;">
+        <div style="font-size:2rem;margin-bottom:.75rem">📈</div>
+        <h3 style="font-size:1rem;margin-bottom:.4rem">Scale Without Headcount</h3>
+        <p style="font-size:.85rem">Self-service tools multiply the data team's reach. More users get answers without more analyst time.</p>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;text-align:center;">
+        <div style="font-size:2rem;margin-bottom:.75rem">🧠</div>
+        <h3 style="font-size:1rem;margin-bottom:.4rem">AI-Ready Infrastructure</h3>
+        <p style="font-size:.85rem">Governed semantics are the foundation for trustworthy AI. You can't build reliable AI on ungoverned data.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ───────────────────────────────────────────────────────────── -->
+<section class="cta-section" id="roadmap">
+  <div class="container">
+    <h4 style="margin-bottom:.75rem">Get Involved</h4>
+    <h2>This Platform Is Built to Serve You</h2>
+    <p>
+      Every team that has a data question is a potential beneficiary. We want to understand
+      what you need — so we can prioritize the views, apps, and integrations that
+      deliver the most value.
+    </p>
+    <div class="cta-actions">
+      <a href="mailto:data-team@example.org" class="btn btn-primary">Request a Demo</a>
+      <a href="mailto:data-team@example.org" class="btn btn-ghost">Suggest a Use Case</a>
+    </div>
+    <div style="margin-top:3rem;display:flex;justify-content:center;gap:3rem;flex-wrap:wrap;">
+      <div style="text-align:center">
+        <div style="font-size:1.5rem;margin-bottom:.25rem">📅</div>
+        <div style="font-size:.85rem;color:var(--text);font-weight:600">Office Hours</div>
+        <div style="font-size:.8rem;color:var(--muted)">Join the data team every other Friday</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:1.5rem;margin-bottom:.25rem">💬</div>
+        <div style="font-size:.85rem;color:var(--text);font-weight:600">Slack Channel</div>
+        <div style="font-size:.8rem;color:var(--muted)">#data-platform for questions &amp; updates</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:1.5rem;margin-bottom:.25rem">📖</div>
+        <div style="font-size:.85rem;color:var(--text);font-weight:600">Documentation</div>
+        <div style="font-size:.8rem;color:var(--muted)">Metric definitions &amp; user guides</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ────────────────────────────────────────────────────────── -->
+<footer>
+  <div>Data Team · Research &amp; Evaluation · 2026</div>
+  <div style="margin-top:.4rem;color:#4a6480;font-size:.8rem">
+    Built with Cube · Streamlit · Google Gemini · Python
+  </div>
+</footer>
+
+<script>
+  // Animate elements on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.feature-card, .problem-card, .app-card, .stat, .tl-item').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(16px)';
+    el.style.transition = 'opacity .5s ease, transform .5s ease';
+    observer.observe(el);
+  });
+</script>
+
+</body>
+</html>
