@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Survey Tickets — Trends Over Time</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f6fa; color: #1a1a2e; padding: 24px; }
+  h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 4px; }
+  .subtitle { font-size: 0.85rem; color: #6b7280; margin-bottom: 20px; }
+  .insight-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-bottom: 18px; }
+  .insight { background: #fff; border-radius: 10px; padding: 16px; border: 1px solid #e5e7eb; }
+  .insight .label { font-size: 0.72rem; color: #9ca3af; text-transform: uppercase; letter-spacing:.05em; margin-bottom:5px; }
+  .insight .value { font-size: 1.5rem; font-weight: 700; color: #2563eb; }
+  .insight .sub { font-size: 0.76rem; color: #6b7280; margin-top: 2px; }
+  .card { background: #fff; border-radius: 12px; padding: 20px 22px; border: 1px solid #e5e7eb; margin-bottom: 18px; }
+  .card h2 { font-size: 0.8rem; font-weight: 600; color: #374151; text-transform: uppercase; letter-spacing:.05em; margin-bottom: 14px; }
+  .toggle-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .toggle { padding: 4px 12px; border-radius: 999px; font-size: 0.78rem; font-weight: 500; border: 1.5px solid #e5e7eb; cursor: pointer; background: #fff; color: #6b7280; transition: all .15s; }
+  .toggle.on { background: #2563eb; color: #fff; border-color: #2563eb; }
+  .spike-table { width: 100%; border-collapse: collapse; font-size: 0.81rem; }
+  .spike-table th { text-align: left; padding: 6px 10px; color: #6b7280; font-weight: 600; border-bottom: 1px solid #e5e7eb; }
+  .spike-table td { padding: 7px 10px; border-bottom: 1px solid #f3f4f6; color: #374151; }
+  .spike-table tr:last-child td { border-bottom: none; }
+  .badge { display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.7rem; font-weight:600; background:#dbeafe; color:#1d4ed8; }
+  .badge.red { background:#fee2e2; color:#b91c1c; }
+  footer { font-size: 0.72rem; color: #9ca3af; text-align: center; margin-top: 20px; }
+</style>
+</head>
+<body>
+<h1>📈 Survey Tickets — Trends Over Time</h1>
+<p class="subtitle">Monthly ticket volume and replies · Jan 2022 – May 2026 · Academic year (Jul–Jun)</p>
+
+<div class="insight-row" id="insights">
+  <div class="insight"><div class="label">Total Tickets</div><div class="value">891</div><div class="sub">Jan 2022 – May 2026</div></div>
+  <div class="insight"><div class="label">Total Replies</div><div class="value">1,800</div><div class="sub">Emails back &amp; forth</div></div>
+  <div class="insight"><div class="label">Avg Tickets / Month</div><div class="value">16.5</div><div class="sub">Across 54 months</div></div>
+  <div class="insight"><div class="label">Peak Month</div><div class="value" style="font-size:1.1rem;padding-top:5px">Nov '22 &amp; Nov '23</div><div class="sub">73 tickets each</div></div>
+</div>
+
+
+<div class="card">
+  <h2>Monthly Ticket Volume &amp; Total Replies</h2>
+  <div class="toggle-row">
+    <button class="toggle on" id="togTickets" onclick="toggleLine('tickets',this)">Tickets</button>
+    <button class="toggle on" id="togReplies" onclick="toggleLine('replies',this)">Replies</button>
+  </div>
+  <div style="position:relative;height:270px"><canvas id="mainChart"></canvas></div>
+</div>
+
+<div class="card">
+  <h2>Tickets by Category — Academic Year (Stacked)</h2>
+  <div style="position:relative;height:260px"><canvas id="stackedChart"></canvas></div>
+</div>
+
+<div class="card">
+  <h2>Completion Tracking Issues by Academic Year</h2>
+  <div style="position:relative;height:180px"><canvas id="ctChart"></canvas></div>
+</div>
+
+<div class="card">
+  <h2>Peak Months</h2>
+  <table class="spike-table">
+    <thead><tr><th>Month</th><th>AY</th><th>Tickets</th><th>Replies</th><th>Avg Rep/Ticket</th><th>Survey Window</th></tr></thead>
+    <tbody id="spikeBody"></tbody>
+  </table>
+</div>
+
+<footer>Data from Zendesk · 891 tickets · Jan 2022 – May 2026</footer>
+
+<script>
+const MONTHLY = {"2022-01":{"tickets":49,"replies":102},"2022-02":{"tickets":25,"replies":49},"2022-03":{"tickets":3,"replies":8},"2022-04":{"tickets":23,"replies":60},"2022-05":{"tickets":34,"replies":71},"2022-06":{"tickets":3,"replies":4},"2022-08":{"tickets":1,"replies":2},"2022-09":{"tickets":9,"replies":10},"2022-10":{"tickets":33,"replies":76},"2022-11":{"tickets":73,"replies":141},"2022-12":{"tickets":9,"replies":23},"2023-01":{"tickets":8,"replies":12},"2023-02":{"tickets":5,"replies":26},"2023-03":{"tickets":10,"replies":30},"2023-04":{"tickets":54,"replies":111},"2023-05":{"tickets":9,"replies":20},"2023-06":{"tickets":2,"replies":5},"2023-07":{"tickets":6,"replies":7},"2023-08":{"tickets":4,"replies":11},"2023-09":{"tickets":3,"replies":7},"2023-10":{"tickets":24,"replies":33},"2023-11":{"tickets":73,"replies":111},"2023-12":{"tickets":8,"replies":17},"2024-01":{"tickets":20,"replies":53},"2024-02":{"tickets":12,"replies":20},"2024-03":{"tickets":5,"replies":8},"2024-04":{"tickets":58,"replies":106},"2024-05":{"tickets":7,"replies":20},"2024-06":{"tickets":2,"replies":2},"2024-07":{"tickets":9,"replies":20},"2024-08":{"tickets":7,"replies":15},"2024-09":{"tickets":3,"replies":8},"2024-10":{"tickets":25,"replies":53},"2024-11":{"tickets":51,"replies":74},"2024-12":{"tickets":1,"replies":3},"2025-01":{"tickets":19,"replies":36},"2025-02":{"tickets":4,"replies":6},"2025-03":{"tickets":4,"replies":15},"2025-04":{"tickets":41,"replies":104},"2025-05":{"tickets":4,"replies":12},"2025-06":{"tickets":3,"replies":7},"2025-08":{"tickets":2,"replies":4},"2025-09":{"tickets":5,"replies":9},"2025-10":{"tickets":29,"replies":68},"2025-11":{"tickets":24,"replies":55},"2025-12":{"tickets":5,"replies":8},"2026-01":{"tickets":27,"replies":67},"2026-02":{"tickets":7,"replies":12},"2026-03":{"tickets":8,"replies":18},"2026-04":{"tickets":39,"replies":59},"2026-05":{"tickets":2,"replies":2}};
+
+const AY_ORDER = ['2021-22','2022-23','2023-24','2024-25','2025-26'];
+const AY_CATS = {
+  '2021-22': {'Access / Login Issues':20,'Completion Tracking Issues':34,'Missing Survey Link / Email':29,'Results / Data Access':20,'Other / General Question':11,'Correction / Edit Request':12,'Late / Missed Submission':6,'Intent to Return Survey':5,'Submission Not Recorded':0},
+  '2022-23': {'Access / Login Issues':42,'Completion Tracking Issues':54,'Missing Survey Link / Email':27,'Results / Data Access':33,'Other / General Question':25,'Correction / Edit Request':19,'Late / Missed Submission':8,'Intent to Return Survey':4,'Submission Not Recorded':1},
+  '2023-24': {'Access / Login Issues':87,'Completion Tracking Issues':39,'Missing Survey Link / Email':50,'Results / Data Access':16,'Other / General Question':18,'Correction / Edit Request':3,'Late / Missed Submission':3,'Intent to Return Survey':4,'Submission Not Recorded':2},
+  '2024-25': {'Access / Login Issues':70,'Completion Tracking Issues':28,'Missing Survey Link / Email':37,'Results / Data Access':17,'Other / General Question':15,'Correction / Edit Request':3,'Late / Missed Submission':0,'Intent to Return Survey':1,'Submission Not Recorded':0},
+  '2025-26': {'Access / Login Issues':52,'Completion Tracking Issues':28,'Missing Survey Link / Email':22,'Results / Data Access':22,'Other / General Question':11,'Correction / Edit Request':7,'Late / Missed Submission':2,'Intent to Return Survey':3,'Submission Not Recorded':1},
+};
+const CAT_COLORS = {
+  'Access / Login Issues':        '#3b82f6',
+  'Completion Tracking Issues':   '#e11d48',
+  'Missing Survey Link / Email':  '#f59e0b',
+  'Results / Data Access':        '#8b5cf6',
+  'Other / General Question':     '#6b7280',
+  'Correction / Edit Request':    '#10b981',
+  'Late / Missed Submission':     '#f97316',
+  'Intent to Return Survey':      '#06b6d4',
+  'Submission Not Recorded':      '#94a3b8',
+};
+
+function getAY(m) {
+  const [y, mo] = m.split('-').map(Number);
+  return mo >= 7 ? `${y}-${String(y+1).slice(2)}` : `${y-1}-${String(y).slice(2)}`;
+}
+
+const months = Object.keys(MONTHLY).sort();
+const labels = months.map(m => {
+  const [y,mo] = m.split('-');
+  return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+mo-1]+' \''+y.slice(2);
+});
+const ticketData = months.map(m=>MONTHLY[m].tickets);
+const replyData  = months.map(m=>MONTHLY[m].replies);
+
+// Academic year separator lines (vertical annotations via custom plugin)
+const ayBoundaries = months.reduce((acc,m,i) => {
+  if (m.endsWith('-07')) acc.push(i - 0.5);
+  return acc;
+}, []);
+
+let mainChart;
+let showT = true, showR = true;
+
+function buildMain() {
+  if (mainChart) mainChart.destroy();
+  const ctx = document.getElementById('mainChart').getContext('2d');
+  const datasets = [];
+  if (showT) datasets.push({ label:'Tickets', data:ticketData, borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.07)', fill:true, tension:0.35, pointRadius:2, pointHoverRadius:5, borderWidth:2 });
+  if (showR) datasets.push({ label:'Replies',  data:replyData,  borderColor:'#f59e0b', backgroundColor:'rgba(245,158,11,0.05)', fill:true, tension:0.35, pointRadius:2, pointHoverRadius:5, borderWidth:2 });
+
+  const ayPlugin = {
+    id:'ayLines',
+    afterDraw(chart) {
+      const {ctx:c, scales:{x,y}} = chart;
+      c.save();
+      ayBoundaries.forEach(xi => {
+        const xPx = x.getPixelForValue(xi);
+        c.beginPath();
+        c.setLineDash([4,4]);
+        c.strokeStyle = '#d1d5db';
+        c.lineWidth = 1;
+        c.moveTo(xPx, y.top);
+        c.lineTo(xPx, y.bottom);
+        c.stroke();
+      });
+      // AY labels
+      AY_ORDER.forEach(ay => {
+        const [start,end] = [ay.slice(0,4)+'-07', (parseInt(ay.slice(0,4))+1)+'-06'];
+        const si = months.findIndex(m=>m>=ay.slice(0,4)+'-07');
+        const ei = months.findIndex(m=>m>=(parseInt(ay.slice(0,4))+1)+'-07') - 1;
+        if (si < 0) return;
+        const xLeft  = x.getPixelForValue(Math.max(0, si));
+        const xRight = x.getPixelForValue(Math.min(months.length-1, ei < 0 ? months.length-1 : ei));
+        const mid = (xLeft + xRight) / 2;
+        c.font = '9px sans-serif';
+        c.fillStyle = '#9ca3af';
+        c.textAlign = 'center';
+        c.fillText('AY '+ay, mid, y.top - 6);
+      });
+      c.restore();
+    }
+  };
+
+  mainChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      layout: { padding: { top: 16 } },
+      interaction:{ mode:'index', intersect:false },
+      plugins:{ legend:{ position:'bottom', labels:{ font:{size:11} } }, tooltip:{ callbacks:{ title:c=>c[0].label } } },
+      scales:{
+        x:{ grid:{display:false}, ticks:{ maxTicksLimit:18, font:{size:10} } },
+        y:{ grid:{color:'#f3f4f6'}, beginAtZero:true }
+      }
+    },
+    plugins: [ayPlugin],
+  });
+}
+
+function toggleLine(s, btn) {
+  if (s==='tickets') showT=!showT;
+  else showR=!showR;
+  btn.classList.toggle('on');
+  buildMain();
+}
+
+function buildStacked() {
+  const cats = Object.keys(CAT_COLORS);
+  const datasets = cats.map(cat=>({
+    label:cat, data:AY_ORDER.map(ay=>AY_CATS[ay][cat]||0),
+    backgroundColor:CAT_COLORS[cat], borderRadius:4,
+  }));
+  new Chart(document.getElementById('stackedChart').getContext('2d'), {
+    type:'bar',
+    data:{ labels:AY_ORDER, datasets },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'bottom', labels:{ font:{size:10}, boxWidth:11 } }, tooltip:{ mode:'index', intersect:false } },
+      scales:{ x:{ stacked:true, grid:{display:false} }, y:{ stacked:true, grid:{color:'#f3f4f6'}, beginAtZero:true } }
+    }
+  });
+}
+
+function buildCTChart() {
+  const ctData = AY_ORDER.map(ay=>AY_CATS[ay]['Completion Tracking Issues']||0);
+  new Chart(document.getElementById('ctChart').getContext('2d'), {
+    type:'bar',
+    data:{
+      labels:AY_ORDER,
+      datasets:[{ label:'Completion Tracking Tickets', data:ctData, backgroundColor:'#fda4af', borderColor:'#e11d48', borderWidth:2, borderRadius:6 }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:c=>`${c.raw} tickets` } } },
+      scales:{ x:{ grid:{display:false} }, y:{ grid:{color:'#f3f4f6'}, beginAtZero:true } }
+    }
+  });
+}
+
+function buildSpikeTable() {
+  const WINDOWS = {
+    '2022-01':'Winter','2022-04':'Spring','2022-05':'Spring','2022-11':'Fall',
+    '2023-04':'Spring','2023-11':'Fall',
+    '2024-04':'Spring','2024-11':'Fall',
+    '2025-04':'Spring','2025-10':'Fall','2025-11':'Fall',
+    '2026-01':'Winter','2026-04':'Spring',
+  };
+  const rows = months
+    .map((m,i) => ({ m, label:labels[i], ay:getAY(m), t:ticketData[i], r:replyData[i] }))
+    .sort((a,b)=>b.t-a.t).slice(0,8);
+  document.getElementById('spikeBody').innerHTML = rows.map(row => {
+    const win = WINDOWS[row.m] || 'Survey period';
+    return `<tr>
+      <td><strong>${row.label}</strong></td>
+      <td>AY ${row.ay}</td>
+      <td>${row.t}</td>
+      <td>${row.r}</td>
+      <td>${(row.r/row.t).toFixed(1)}</td>
+      <td><span class="badge">${win}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+buildMain();
+buildStacked();
+buildCTChart();
+buildSpikeTable();
+</script>
+</body>
+</html>

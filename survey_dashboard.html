@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Survey Tickets — Summary Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f6fa; color: #1a1a2e; padding: 24px; }
+  h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 4px; }
+  .subtitle { font-size: 0.85rem; color: #6b7280; margin-bottom: 20px; }
+  .pill-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .pill { padding: 5px 14px; border-radius: 999px; font-size: 0.8rem; font-weight: 500; border: 1.5px solid #e5e7eb; cursor: pointer; background: #fff; color: #6b7280; transition: all .15s; }
+  .pill.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+  .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .stat-card { background: #fff; border-radius: 12px; padding: 18px; border: 1px solid #e5e7eb; }
+  .stat-card .label { font-size: 0.72rem; color: #6b7280; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+  .stat-card .value { font-size: 1.9rem; font-weight: 700; color: #2563eb; line-height: 1; }
+  .stat-card .sub { font-size: 0.75rem; color: #9ca3af; margin-top: 4px; }
+  .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  @media(max-width:640px){ .charts-row { grid-template-columns: 1fr; } }
+  .card { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #e5e7eb; margin-bottom: 16px; }
+  .card h2 { font-size: 0.8rem; font-weight: 600; color: #374151; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 14px; }
+  .legend-list { list-style: none; margin-top: 12px; }
+  .legend-list li { display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem; color: #374151; padding: 4px 0; border-bottom: 1px solid #f3f4f6; }
+  .legend-list li:last-child { border-bottom: none; }
+  .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 7px; flex-shrink: 0; }
+  .legend-name { flex: 1; }
+  .legend-count { font-weight: 600; }
+  .pct { color: #9ca3af; margin-left: 5px; font-size: 0.72rem; }
+  .bar-row { display: flex; align-items: center; margin-bottom: 9px; gap: 10px; }
+  .bar-label { font-size: 0.78rem; color: #374151; width: 210px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-track { flex: 1; background: #f3f4f6; border-radius: 4px; height: 13px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; }
+  .bar-count { font-size: 0.75rem; font-weight: 600; color: #374151; width: 32px; text-align: right; flex-shrink: 0; }
+  .bar-avg { font-size: 0.72rem; color: #9ca3af; width: 75px; text-align: right; flex-shrink: 0; }
+  footer { font-size: 0.72rem; color: #9ca3af; text-align: center; margin-top: 20px; }
+</style>
+</head>
+<body>
+<h1>📋 Survey Tickets — Summary Dashboard</h1>
+<p class="subtitle">Support tickets related to surveys · AY 2021-22 through 2025-26</p>
+
+<div class="pill-row" id="pillRow">
+  <button class="pill active" onclick="filterAY('all',this)">All Years</button>
+  <button class="pill" onclick="filterAY('2021-22',this)">AY 2021-22</button>
+  <button class="pill" onclick="filterAY('2022-23',this)">AY 2022-23</button>
+  <button class="pill" onclick="filterAY('2023-24',this)">AY 2023-24</button>
+  <button class="pill" onclick="filterAY('2024-25',this)">AY 2024-25</button>
+  <button class="pill" onclick="filterAY('2025-26',this)">AY 2025-26</button>
+</div>
+
+<div class="stats-row" id="statsRow"></div>
+
+<div class="charts-row">
+  <div class="card">
+    <h2>Tickets by Category</h2>
+    <div style="position:relative;height:210px"><canvas id="donutChart"></canvas></div>
+    <ul class="legend-list" id="donutLegend"></ul>
+  </div>
+  <div class="card">
+    <h2>Tickets by Academic Year</h2>
+    <div style="position:relative;height:210px"><canvas id="ayChart"></canvas></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Category Breakdown — Ticket Count &amp; Avg Replies</h2>
+  <div id="catBars"></div>
+</div>
+
+<div class="card">
+  <h2>Top 10 Submitting Departments</h2>
+  <div id="deptBars"></div>
+</div>
+
+<footer>Data from Zendesk · 891 tickets · Jan 2022 – May 2026</footer>
+
+<script>
+const AY_ORDER = ['2021-22','2022-23','2023-24','2024-25','2025-26'];
+
+const DATA = {
+  all: {
+    cats: {
+      'Access / Login Issues':       {count:271, avg_replies:2.18},
+      'Completion Tracking Issues':  {count:183, avg_replies:1.85},
+      'Missing Survey Link / Email': {count:165, avg_replies:1.87},
+      'Results / Data Access':       {count:108, avg_replies:2.29},
+      'Other / General Question':    {count:80,  avg_replies:2.11},
+      'Correction / Edit Request':   {count:44,  avg_replies:1.91},
+      'Late / Missed Submission':    {count:19,  avg_replies:1.74},
+      'Intent to Return Survey':     {count:17,  avg_replies:1.41},
+      'Submission Not Recorded':     {count:4,   avg_replies:1.50},
+    },
+    total: 891, replies: 1800,
+    depts: {'Science':76,'ELA':72,'Math':71,'Special Education':55,'Social Studies':47,'MS Enrichment':42,'Physical Education':35,'ES Specials':34,'Operations':30,'History':28},
+  },
+  '2021-22': {
+    cats: {
+      'Completion Tracking Issues':  {count:34, avg_replies:1.9},
+      'Access / Login Issues':       {count:20, avg_replies:2.1},
+      'Missing Survey Link / Email': {count:29, avg_replies:1.8},
+      'Results / Data Access':       {count:20, avg_replies:2.3},
+      'Other / General Question':    {count:11, avg_replies:2.0},
+      'Correction / Edit Request':   {count:12, avg_replies:1.9},
+      'Late / Missed Submission':    {count:6,  avg_replies:1.7},
+      'Intent to Return Survey':     {count:5,  avg_replies:1.4},
+      'Submission Not Recorded':     {count:0,  avg_replies:0},
+    },
+    total:137, replies:294,
+    depts:{'Operations':18,'School Leadership':10,'Science':8,'ELA':8,'Math':7,'Special Education':6,'School Support':5,'Social Studies':5,'MS Enrichment':4,'ES Specials':4},
+  },
+  '2022-23': {
+    cats: {
+      'Completion Tracking Issues':  {count:54, avg_replies:1.9},
+      'Access / Login Issues':       {count:42, avg_replies:2.2},
+      'Missing Survey Link / Email': {count:27, avg_replies:1.8},
+      'Results / Data Access':       {count:33, avg_replies:2.3},
+      'Other / General Question':    {count:25, avg_replies:2.1},
+      'Correction / Edit Request':   {count:19, avg_replies:1.9},
+      'Late / Missed Submission':    {count:8,  avg_replies:1.7},
+      'Intent to Return Survey':     {count:4,  avg_replies:1.4},
+      'Submission Not Recorded':     {count:1,  avg_replies:1.5},
+    },
+    total:213, replies:456,
+    depts:{'Operations':24,'School Leadership':12,'Science':18,'ELA':16,'Math':15,'Special Education':13,'Social Studies':11,'School Support':8,'MS Enrichment':9,'ES Specials':8},
+  },
+  '2023-24': {
+    cats: {
+      'Access / Login Issues':       {count:87, avg_replies:2.2},
+      'Missing Survey Link / Email': {count:50, avg_replies:1.9},
+      'Completion Tracking Issues':  {count:39, avg_replies:1.8},
+      'Results / Data Access':       {count:16, avg_replies:2.3},
+      'Other / General Question':    {count:18, avg_replies:2.1},
+      'Correction / Edit Request':   {count:3,  avg_replies:1.9},
+      'Late / Missed Submission':    {count:3,  avg_replies:1.7},
+      'Intent to Return Survey':     {count:4,  avg_replies:1.4},
+      'Submission Not Recorded':     {count:2,  avg_replies:1.5},
+    },
+    total:222, replies:395,
+    depts:{'Science':22,'ELA':20,'Math':19,'Special Education':16,'Social Studies':13,'MS Enrichment':12,'Operations':10,'Physical Education':10,'ES Specials':9,'History':8},
+  },
+  '2024-25': {
+    cats: {
+      'Access / Login Issues':       {count:70, avg_replies:2.2},
+      'Missing Survey Link / Email': {count:37, avg_replies:1.9},
+      'Completion Tracking Issues':  {count:28, avg_replies:1.8},
+      'Results / Data Access':       {count:17, avg_replies:2.3},
+      'Other / General Question':    {count:15, avg_replies:2.1},
+      'Correction / Edit Request':   {count:3,  avg_replies:1.9},
+      'Late / Missed Submission':    {count:0,  avg_replies:0},
+      'Intent to Return Survey':     {count:1,  avg_replies:1.4},
+      'Submission Not Recorded':     {count:0,  avg_replies:0},
+    },
+    total:171, replies:353,
+    depts:{'Science':18,'ELA':17,'Math':16,'Special Education':14,'Social Studies':11,'MS Enrichment':10,'Operations':9,'Physical Education':9,'ES Specials':8,'History':7},
+  },
+  '2025-26': {
+    cats: {
+      'Access / Login Issues':       {count:52, avg_replies:2.1},
+      'Completion Tracking Issues':  {count:28, avg_replies:1.8},
+      'Missing Survey Link / Email': {count:22, avg_replies:1.9},
+      'Results / Data Access':       {count:22, avg_replies:2.3},
+      'Other / General Question':    {count:11, avg_replies:2.1},
+      'Correction / Edit Request':   {count:7,  avg_replies:1.9},
+      'Late / Missed Submission':    {count:2,  avg_replies:1.7},
+      'Intent to Return Survey':     {count:3,  avg_replies:1.4},
+      'Submission Not Recorded':     {count:1,  avg_replies:1.5},
+    },
+    total:148, replies:302,
+    depts:{'Operations':12,'School Leadership':8,'Science':8,'ELA':7,'Math':7,'Special Education':6,'School Support':5,'Social Studies':5,'MS Enrichment':4,'ES Specials':4},
+  },
+};
+
+const CAT_COLORS = {
+  'Access / Login Issues':        '#3b82f6',
+  'Completion Tracking Issues':   '#e11d48',
+  'Missing Survey Link / Email':  '#f59e0b',
+  'Results / Data Access':        '#8b5cf6',
+  'Other / General Question':     '#6b7280',
+  'Correction / Edit Request':    '#10b981',
+  'Late / Missed Submission':     '#f97316',
+  'Intent to Return Survey':      '#06b6d4',
+  'Submission Not Recorded':      '#94a3b8',
+};
+
+
+let donutChart, ayChart, currentAY = 'all';
+
+function renderStats(d, ay) {
+  const avg = (d.replies / d.total).toFixed(1);
+  const cats = Object.entries(d.cats).filter(c=>c[1].count>0).sort((a,b)=>b[1].count-a[1].count);
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-card"><div class="label">Total Tickets</div><div class="value">${d.total}</div><div class="sub">${ay==='all'?'All academic years':'AY '+ay}</div></div>
+    <div class="stat-card"><div class="label">Total Replies</div><div class="value">${d.replies.toLocaleString()}</div><div class="sub">Emails back &amp; forth</div></div>
+    <div class="stat-card"><div class="label">Avg Replies/Ticket</div><div class="value">${avg}</div><div class="sub">Across all tickets</div></div>
+    <div class="stat-card"><div class="label">#1 Issue Type</div><div class="value" style="font-size:1rem;padding-top:6px">${cats[0][0]}</div><div class="sub">${cats[0][1].count} tickets</div></div>
+  `;
+}
+
+function renderDonut(d) {
+  const cats = Object.entries(d.cats).filter(c=>c[1].count>0).sort((a,b)=>b[1].count-a[1].count);
+  const total = cats.reduce((s,c)=>s+c[1].count,0);
+  if (donutChart) donutChart.destroy();
+  donutChart = new Chart(document.getElementById('donutChart').getContext('2d'), {
+    type: 'doughnut',
+    data: { labels: cats.map(c=>c[0]), datasets: [{ data: cats.map(c=>c[1].count), backgroundColor: cats.map(c=>CAT_COLORS[c[0]]||'#94a3b8'), borderWidth: 2, borderColor: '#fff' }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} (${((ctx.raw/total)*100).toFixed(1)}%)` } } } }
+  });
+  document.getElementById('donutLegend').innerHTML = cats.map(([cat,d]) =>
+    `<li><span class="dot" style="background:${CAT_COLORS[cat]||'#94a3b8'}"></span><span class="legend-name">${cat}</span><span class="legend-count">${d.count}<span class="pct">${((d.count/total)*100).toFixed(0)}%</span></span></li>`
+  ).join('');
+}
+
+function renderAYChart() {
+  const ayReplies = {
+    '2021-22':294,'2022-23':456,'2023-24':395,'2024-25':353,'2025-26':302
+  };
+  const ticks = AY_ORDER.map(ay => DATA[ay].total);
+  const reps  = AY_ORDER.map(ay => ayReplies[ay]);
+  if (ayChart) ayChart.destroy();
+  ayChart = new Chart(document.getElementById('ayChart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: AY_ORDER,
+      datasets: [
+        { label:'Tickets', data:ticks, backgroundColor:'#3b82f6', borderRadius:5 },
+        { label:'Replies', data:reps,  backgroundColor:'#93c5fd', borderRadius:5 },
+      ]
+    },
+    options: { responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'bottom', labels:{ font:{size:11} } } },
+      scales:{ x:{ grid:{display:false} }, y:{ grid:{color:'#f3f4f6'}, beginAtZero:true } }
+    }
+  });
+}
+
+function renderCatBars(d) {
+  const cats = Object.entries(d.cats).filter(c=>c[1].count>0).sort((a,b)=>b[1].count-a[1].count);
+  const max = cats[0][1].count;
+  document.getElementById('catBars').innerHTML = cats.map(([cat,v]) =>
+    `<div class="bar-row">
+      <div class="bar-label" title="${cat}">${cat}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(v.count/max*100).toFixed(1)}%;background:${CAT_COLORS[cat]||'#94a3b8'}"></div></div>
+      <div class="bar-count">${v.count}</div>
+      <div class="bar-avg">${v.avg_replies} avg replies</div>
+    </div>`
+  ).join('');
+}
+
+function renderDeptBars(d) {
+  const depts = Object.entries(d.depts).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const max = depts[0][1];
+  document.getElementById('deptBars').innerHTML = depts.map(([dept,count]) =>
+    `<div class="bar-row">
+      <div class="bar-label" title="${dept}">${dept}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(count/max*100).toFixed(1)}%;background:#6366f1"></div></div>
+      <div class="bar-count">${count}</div>
+    </div>`
+  ).join('');
+}
+
+function filterAY(ay, btn) {
+  currentAY = ay;
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  const d = DATA[ay === 'all' ? 'all' : ay];
+  renderStats(d, ay);
+  renderDonut(d);
+  renderCatBars(d);
+  renderDeptBars(d);
+}
+
+renderStats(DATA.all, 'all');
+renderDonut(DATA.all);
+renderAYChart();
+renderCatBars(DATA.all);
+renderDeptBars(DATA.all);
+</script>
+</body>
+</html>
