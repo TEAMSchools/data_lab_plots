@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KIPP Purpose Academy - Family Survey YOY</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: Calibri, Verdana, 'Helvetica Neue', Arial, sans-serif;
+  background: #eef1f8; color: #111; font-size: 14px; line-height: 1.4;
+}
+.page {
+  max-width: 960px; margin: 32px auto; background: white;
+  border-radius: 6px; overflow: hidden;
+  box-shadow: 0 4px 28px rgba(0,30,98,0.15);
+}
+.header {
+  background: #001E62; color: white;
+  padding: 24px 40px 20px;
+  display: flex; justify-content: space-between; align-items: flex-end; gap: 20px;
+}
+.header h1 { font-size: 19px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.2px; }
+.header p  { font-size: 11.5px; opacity: 0.65; letter-spacing: 0.3px; }
+.header-badge {
+  flex-shrink: 0;
+  border: 1px solid rgba(87,192,233,0.5); color: #57C0E9;
+  font-size: 11px; font-weight: 600; padding: 5px 11px;
+  border-radius: 3px; letter-spacing: 0.6px;
+}
+.stats-row {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  border-bottom: 1px solid #e5e9f5;
+}
+.stat-box { padding: 20px 24px; text-align: center; border-right: 1px solid #e5e9f5; }
+.stat-box:last-child { border-right: none; }
+.stat-year { font-size: 10.5px; text-transform: uppercase; letter-spacing: 1.3px; color: #888; margin-bottom: 7px; }
+.stat-pct  { font-size: 44px; font-weight: 700; line-height: 1; color: #001E62; font-variant-numeric: tabular-nums; letter-spacing: -1px; }
+.stat-pct.change { font-size: 34px; }
+.stat-sub  { font-size: 11px; color: #999; margin-top: 5px; }
+.chart-section { padding: 0; background: #fafbff; border-bottom: 1px solid #e5e9f5; }
+.chart-section iframe { width: 100%; display: block; }
+.table-section { padding: 22px 40px 26px; }
+.section-label {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 1.3px;
+  color: #001E62; font-weight: 700; margin-bottom: 13px;
+  padding-bottom: 6px; border-bottom: 2px solid #001E62; display: inline-block;
+}
+table.summary { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.summary thead th {
+  text-align: left; font-size: 10.5px; text-transform: uppercase;
+  letter-spacing: 0.8px; color: #888; padding: 6px 8px 8px;
+  border-bottom: 1px solid #e5e9f5; font-weight: 600;
+}
+table.summary thead th.num { text-align: right; }
+table.summary tbody td {
+  padding: 8px 8px; border-bottom: 1px solid #f0f2f8;
+  vertical-align: middle; color: #222;
+}
+table.summary tbody td.num { text-align: right; font-variant-numeric: tabular-nums; color: #333; }
+table.summary tbody tr:last-child td { border-bottom: none; }
+table.summary tbody tr:hover td { background: #f7f9ff; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.badge.up      { background: #edf7d4; color: #3d6200; }
+.badge.dn      { background: #ffeaea; color: #b02020; }
+.badge.flat    { background: #f2f2f2; color: #555; }
+.badge.missing { background: #fff3de; color: #9a6000; }
+.overall-row td { font-weight: 700; color: #001E62; border-top: 2px solid #001E62 !important; padding-top: 11px; }
+.footer {
+  background: #001E62; color: rgba(255,255,255,0.65);
+  padding: 13px 40px; font-size: 11px; line-height: 1.65;
+}
+.footer strong { color: white; }
+.c-up { color: #C3D52E; }
+.c-dn { color: #EE3C37; }
+.c-ms { color: #F9A21A; }
+@media print {
+  @page { size: letter landscape; margin: 0.5in; }
+  body { background: white; font-size: 11px; }
+  .page { margin: 0; box-shadow: none; border-radius: 0; max-width: 100%; }
+  .header, .footer, .badge, .stat-pct.change {
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .chart-section img { max-height: 320px; object-fit: contain; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div>
+      <h1>KIPP Purpose Academy</h1>
+      <p>Family Survey: Year-over-Year Analysis &nbsp;&middot;&nbsp; KIPP Team &amp; Family Schools &ndash; Newark</p>
+    </div>
+    <div class="header-badge">SY 2024&#8211;25 &rarr; SY 2025&#8211;26</div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="stat-year">SY 2024&ndash;25</div>
+      <div class="stat-pct">92.3%</div>
+      <div class="stat-sub">families rated positively</div>
+      <div class="stat-sub">~386 respondents</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-year">SY 2025&ndash;26</div>
+      <div class="stat-pct">92.4%</div>
+      <div class="stat-sub">families rated positively</div>
+      <div class="stat-sub">~376 respondents</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-year">Change</div>
+      <div class="stat-pct change" style="color:#4a7000">&#9650;&nbsp;+0.1 pts</div>
+      <div class="stat-sub">overall</div>
+      <div class="stat-sub">5 of 9 questions improved</div>
+    </div>
+  </div>
+
+  <div class="chart-section">
+    <iframe srcdoc="<html>
+<head><meta charset=&quot;utf-8&quot; /></head>
+<body>
+    <div>                        <script type=&quot;text/javascript&quot;>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset=&quot;utf-8&quot; src=&quot;https://cdn.plot.ly/plotly-3.3.1.min.js&quot; integrity=&quot;sha256-4rD3fugVb/nVJYUv5Ky3v+fYXoouHaBSP20WIJuEiWg=&quot; crossorigin=&quot;anonymous&quot;></script>                <div id=&quot;3c37841c-73e6-4432-bb0e-fee4226a1855&quot; class=&quot;plotly-graph-div&quot; style=&quot;height:480px; width:1000px;&quot;></div>            <script type=&quot;text/javascript&quot;>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById(&quot;3c37841c-73e6-4432-bb0e-fee4226a1855&quot;)) {                    Plotly.newPlot(                        &quot;3c37841c-73e6-4432-bb0e-fee4226a1855&quot;,                        [{&quot;hoverinfo&quot;:&quot;skip&quot;,&quot;line&quot;:{&quot;color&quot;:&quot;#EE3C37&quot;,&quot;width&quot;:2.5},&quot;mode&quot;:&quot;lines&quot;,&quot;showlegend&quot;:false,&quot;x&quot;:[86.9,86.3],&quot;y&quot;:[&quot;Student activities&quot;,&quot;Student activities&quot;],&quot;type&quot;:&quot;scatter&quot;},{&quot;hoverinfo&quot;:&quot;skip&quot;,&quot;line&quot;:{&quot;color&quot;:&quot;#EE3C37&quot;,&quot;width&quot;:2.5},&quot;mode&quot;:&quot;lines&quot;,&quot;showlegend&quot;:false,&quot;x&quot;:[91.3,89.2],&quot;y&quot;:[&quot;Staff response to behavior&quot;,&quot;Staff response to behavior&quot;],&quot;type&quot;:&quot;scatter&quot;},{&quot;hoverinfo&quot;:&quot;skip&quot;,&quot;line&quot;:{&quot;color&quot;:&quot;#EE3C37&quot;,&quot;width&quot;:2.5},&quot;mode&quot;:&quot;lines&quot;,&quot;showlegend&quot;:false,&quot;x&quot;:[92.2,90.7],&quot;y&quot;:[&quot;Family engagement&quot;,&quot;Family engagement&quot;],&quot;type&quot;:&quot;scatter&quot;},{&quot;hoverinfo&quot;:&quot;skip&quot;,&quot;line&quot;:{&quot;color&quot;:&quot;#C3D52E&quot;,&quot;width&quot;:2.5},&quot;mode&quot;:&quot;lines&quot;,&quot;showlegend&quot;:false,&quot;x&quot;:[90.9,91.5],&quot;y&quot;:[&quot;Student input on decisions&quot;,&quot;Student input on decisions&quot;],&quot;type&quot;:&quot;scatter&quot;},{&quot;hoverinfo&quot;:&quot;skip&quot;,&quot;line&quot;:{&quot;color&quot;:&quot;#EE3C37&quot;,&quot;width&quot;:2.5},&quot;mode&quot;:&quot;lines&quot;,&quot;showlegend&quot;:false,&quot;x&quot;:[92.5,92.3],&quot;y&quot;:[&quot;Student expectations&quot;,&quot;Student expectations&quot;],&quot;type&quot;:&quot;scatter&quot;},{&quot;hoverinfo&quot;:&quot;skip&quot;,&quot;line&quot;:{&quot;color&quot;:&quot;#C3D52E&quot;,&quot;width&quot;:2.5},&quot;mode&quot;:&quot;lines&quot;,&quot;showlegend&quot;:false,&quot;x&quot;:[91.6,92.7],&quot;y&quot;:[&quot;Learning outcomes&quot;,&quot;Learning outcomes&quot;],&quot;type&quot;:&quot;scatter&quot;},{&quot;hoverinfo&quot;:&quot;skip&quot;,&quot;line&quot;:{&quot;color&quot;:&quot;#C3D52E&quot;,&quot;width&quot;:2.5},&quot;mode&quot;:&quot;lines&quot;,&quot;showlegend&quot;:false,&quot;x&quot;:[93.5,95.4],&quot;y&quot;:[&quot;Instructional practices&quot;,&quot;Instructional practices&quot;],&quot;type&quot;:&quot;scatter&quot;},{&quot;hoverinfo&quot;:&quot;skip&quot;,&quot;line&quot;:{&quot;color&quot;:&quot;#C3D52E&quot;,&quot;width&quot;:2.5},&quot;mode&quot;:&quot;lines&quot;,&quot;showlegend&quot;:false,&quot;x&quot;:[96.5,96.9],&quot;y&quot;:[&quot;Staff-student interactions&quot;,&quot;Staff-student interactions&quot;],&quot;type&quot;:&quot;scatter&quot;},{&quot;hoverinfo&quot;:&quot;skip&quot;,&quot;line&quot;:{&quot;color&quot;:&quot;#C3D52E&quot;,&quot;width&quot;:2.5},&quot;mode&quot;:&quot;lines&quot;,&quot;showlegend&quot;:false,&quot;x&quot;:[95.6,97.1],&quot;y&quot;:[&quot;Lessons &amp; resources&quot;,&quot;Lessons &amp; resources&quot;],&quot;type&quot;:&quot;scatter&quot;},{&quot;marker&quot;:{&quot;color&quot;:&quot;#001E62&quot;,&quot;size&quot;:12},&quot;mode&quot;:&quot;markers+text&quot;,&quot;name&quot;:&quot;SY 2024-25&quot;,&quot;showlegend&quot;:true,&quot;text&quot;:[&quot;86.9%&quot;,&quot;91.3%&quot;,&quot;92.2%&quot;,&quot;90.9%&quot;,&quot;92.5%&quot;,&quot;91.6%&quot;,&quot;93.5%&quot;,&quot;96.5%&quot;,&quot;95.6%&quot;],&quot;textfont&quot;:{&quot;color&quot;:&quot;#001E62&quot;,&quot;size&quot;:10},&quot;textposition&quot;:[&quot;middle right&quot;,&quot;middle right&quot;,&quot;middle right&quot;,&quot;middle left&quot;,&quot;middle right&quot;,&quot;middle left&quot;,&quot;middle left&quot;,&quot;middle left&quot;,&quot;middle left&quot;],&quot;x&quot;:[86.9,91.3,92.2,90.9,92.5,91.6,93.5,96.5,95.6],&quot;y&quot;:[&quot;Student activities&quot;,&quot;Staff response to behavior&quot;,&quot;Family engagement&quot;,&quot;Student input on decisions&quot;,&quot;Student expectations&quot;,&quot;Learning outcomes&quot;,&quot;Instructional practices&quot;,&quot;Staff-student interactions&quot;,&quot;Lessons &amp; resources&quot;],&quot;type&quot;:&quot;scatter&quot;},{&quot;marker&quot;:{&quot;color&quot;:&quot;#F9A21A&quot;,&quot;line&quot;:{&quot;color&quot;:&quot;#F9A21A&quot;,&quot;width&quot;:2.5},&quot;size&quot;:12,&quot;symbol&quot;:&quot;circle-open&quot;},&quot;mode&quot;:&quot;markers+text&quot;,&quot;name&quot;:&quot;SY 2024-25 (not in SY 25-26)&quot;,&quot;showlegend&quot;:true,&quot;text&quot;:[&quot;92.5%&quot;],&quot;textfont&quot;:{&quot;color&quot;:&quot;#F9A21A&quot;,&quot;size&quot;:10},&quot;textposition&quot;:[&quot;middle left&quot;],&quot;x&quot;:[92.5],&quot;y&quot;:[&quot;Why school matters&quot;],&quot;type&quot;:&quot;scatter&quot;},{&quot;marker&quot;:{&quot;color&quot;:&quot;#C3D52E&quot;,&quot;size&quot;:12},&quot;mode&quot;:&quot;markers+text&quot;,&quot;name&quot;:&quot;SY 2025-26 (improved)&quot;,&quot;showlegend&quot;:true,&quot;text&quot;:[&quot;91.5%&quot;,&quot;92.7%&quot;,&quot;95.4%&quot;,&quot;96.9%&quot;,&quot;97.1%&quot;],&quot;textfont&quot;:{&quot;color&quot;:&quot;#4a7000&quot;,&quot;size&quot;:10},&quot;textposition&quot;:[&quot;middle right&quot;,&quot;middle right&quot;,&quot;middle right&quot;,&quot;middle right&quot;,&quot;middle right&quot;],&quot;x&quot;:[91.5,92.7,95.4,96.9,97.1],&quot;y&quot;:[&quot;Student input on decisions&quot;,&quot;Learning outcomes&quot;,&quot;Instructional practices&quot;,&quot;Staff-student interactions&quot;,&quot;Lessons &amp; resources&quot;],&quot;type&quot;:&quot;scatter&quot;},{&quot;marker&quot;:{&quot;color&quot;:&quot;#EE3C37&quot;,&quot;size&quot;:12},&quot;mode&quot;:&quot;markers+text&quot;,&quot;name&quot;:&quot;SY 2025-26 (declined)&quot;,&quot;showlegend&quot;:true,&quot;text&quot;:[&quot;86.3%&quot;,&quot;89.2%&quot;,&quot;90.7%&quot;,&quot;92.3%&quot;],&quot;textfont&quot;:{&quot;color&quot;:&quot;#EE3C37&quot;,&quot;size&quot;:10},&quot;textposition&quot;:[&quot;middle left&quot;,&quot;middle left&quot;,&quot;middle left&quot;,&quot;middle left&quot;],&quot;x&quot;:[86.3,89.2,90.7,92.3],&quot;y&quot;:[&quot;Student activities&quot;,&quot;Staff response to behavior&quot;,&quot;Family engagement&quot;,&quot;Student expectations&quot;],&quot;type&quot;:&quot;scatter&quot;}],                        {&quot;template&quot;:{&quot;data&quot;:{&quot;histogram2dcontour&quot;:[{&quot;type&quot;:&quot;histogram2dcontour&quot;,&quot;colorbar&quot;:{&quot;outlinewidth&quot;:0,&quot;ticks&quot;:&quot;&quot;},&quot;colorscale&quot;:[[0.0,&quot;#0d0887&quot;],[0.1111111111111111,&quot;#46039f&quot;],[0.2222222222222222,&quot;#7201a8&quot;],[0.3333333333333333,&quot;#9c179e&quot;],[0.4444444444444444,&quot;#bd3786&quot;],[0.5555555555555556,&quot;#d8576b&quot;],[0.6666666666666666,&quot;#ed7953&quot;],[0.7777777777777778,&quot;#fb9f3a&quot;],[0.8888888888888888,&quot;#fdca26&quot;],[1.0,&quot;#f0f921&quot;]]}],&quot;choropleth&quot;:[{&quot;type&quot;:&quot;choropleth&quot;,&quot;colorbar&quot;:{&quot;outlinewidth&quot;:0,&quot;ticks&quot;:&quot;&quot;}}],&quot;histogram2d&quot;:[{&quot;type&quot;:&quot;histogram2d&quot;,&quot;colorbar&quot;:{&quot;outlinewidth&quot;:0,&quot;ticks&quot;:&quot;&quot;},&quot;colorscale&quot;:[[0.0,&quot;#0d0887&quot;],[0.1111111111111111,&quot;#46039f&quot;],[0.2222222222222222,&quot;#7201a8&quot;],[0.3333333333333333,&quot;#9c179e&quot;],[0.4444444444444444,&quot;#bd3786&quot;],[0.5555555555555556,&quot;#d8576b&quot;],[0.6666666666666666,&quot;#ed7953&quot;],[0.7777777777777778,&quot;#fb9f3a&quot;],[0.8888888888888888,&quot;#fdca26&quot;],[1.0,&quot;#f0f921&quot;]]}],&quot;heatmap&quot;:[{&quot;type&quot;:&quot;heatmap&quot;,&quot;colorbar&quot;:{&quot;outlinewidth&quot;:0,&quot;ticks&quot;:&quot;&quot;},&quot;colorscale&quot;:[[0.0,&quot;#0d0887&quot;],[0.1111111111111111,&quot;#46039f&quot;],[0.2222222222222222,&quot;#7201a8&quot;],[0.3333333333333333,&quot;#9c179e&quot;],[0.4444444444444444,&quot;#bd3786&quot;],[0.5555555555555556,&quot;#d8576b&quot;],[0.6666666666666666,&quot;#ed7953&quot;],[0.7777777777777778,&quot;#fb9f3a&quot;],[0.8888888888888888,&quot;#fdca26&quot;],[1.0,&quot;#f0f921&quot;]]}],&quot;contourcarpet&quot;:[{&quot;type&quot;:&quot;contourcarpet&quot;,&quot;colorbar&quot;:{&quot;outlinewidth&quot;:0,&quot;ticks&quot;:&quot;&quot;}}],&quot;contour&quot;:[{&quot;type&quot;:&quot;contour&quot;,&quot;colorbar&quot;:{&quot;outlinewidth&quot;:0,&quot;ticks&quot;:&quot;&quot;},&quot;colorscale&quot;:[[0.0,&quot;#0d0887&quot;],[0.1111111111111111,&quot;#46039f&quot;],[0.2222222222222222,&quot;#7201a8&quot;],[0.3333333333333333,&quot;#9c179e&quot;],[0.4444444444444444,&quot;#bd3786&quot;],[0.5555555555555556,&quot;#d8576b&quot;],[0.6666666666666666,&quot;#ed7953&quot;],[0.7777777777777778,&quot;#fb9f3a&quot;],[0.8888888888888888,&quot;#fdca26&quot;],[1.0,&quot;#f0f921&quot;]]}],&quot;surface&quot;:[{&quot;type&quot;:&quot;surface&quot;,&quot;colorbar&quot;:{&quot;outlinewidth&quot;:0,&quot;ticks&quot;:&quot;&quot;},&quot;colorscale&quot;:[[0.0,&quot;#0d0887&quot;],[0.1111111111111111,&quot;#46039f&quot;],[0.2222222222222222,&quot;#7201a8&quot;],[0.3333333333333333,&quot;#9c179e&quot;],[0.4444444444444444,&quot;#bd3786&quot;],[0.5555555555555556,&quot;#d8576b&quot;],[0.6666666666666666,&quot;#ed7953&quot;],[0.7777777777777778,&quot;#fb9f3a&quot;],[0.8888888888888888,&quot;#fdca26&quot;],[1.0,&quot;#f0f921&quot;]]}],&quot;mesh3d&quot;:[{&quot;type&quot;:&quot;mesh3d&quot;,&quot;colorbar&quot;:{&quot;outlinewidth&quot;:0,&quot;ticks&quot;:&quot;&quot;}}],&quot;scatter&quot;:[{&quot;fillpattern&quot;:{&quot;fillmode&quot;:&quot;overlay&quot;,&quot;size&quot;:10,&quot;solidity&quot;:0.2},&quot;type&quot;:&quot;scatter&quot;}],&quot;parcoords&quot;:[{&quot;type&quot;:&quot;parcoords&quot;,&quot;line&quot;:{&quot;colorbar&quot;:{&quot;outlinewidth&quot;:0,&quot;ticks&quot;:&quot;&quot;}}}],&quot;scatterpolargl&quot;:[{&quot;type&quot;:&quot;scatterpolargl&quot;,&quot;marker&quot;:{&quot;colorbar&quot;:{&quot;outlinewidth&quot;:0,&quot;ticks&quot;:&quot;&quot;}}}],&quot;bar&quot;:[{&quot;error_x&quot;:{&quot;color&quot;:&quot;#2a3f5f&quot;},&quot;error_y&quot;:{&quot;color&quot;:&quot;#2a3f5f&quot;},&quot;marker&quot;:{&quot;line&quot;:{&quot;color&quot;:&quot;#E5ECF6&quot;,&quot;width&quot;:0.5},&quot;pattern&quot;:{&quot;fillmode&quot;:&quot;overlay&quot;,&quot;size&quot;:10,&quot;solidity&quot;:0.2}},&quot;type&quot;:&quot;bar&quot;}],&quot;scattergeo&quot;:[{&quot;type&quot;:&quot;scattergeo&quot;,&quot;marker&quot;:{&quot;colorbar&quot;:{&quot;outlinewidth&quot;:0,&quot;ticks&quot;:&quot;&quot;}}}],&quot;scatterpolar&quot;:[{&quot;type&quot;:&quot;scatterpolar&quot;,&quot;marker&quot;:{&quot;colorbar&quot;:{&quot;outlinewidth&quot;:0,&quot;ticks&quot;:&quot;&quot;}}}],&quot;histogram&quot;:[{&quot;marker&quot;:{&quot;pattern&quot;:{&quot;fillmode&quot;:&quot;overlay&quot;,&quot;size&quot;:10,&quot;solidity&quot;:0.2}},&quot;type&quot;:&quot;histogram&quot;}],&quot;scattergl&quot;:[{&quot;type&quot;:&quot;scattergl&quot;,&quot;marker&quot;:{&quot;colorbar&quot;:{&quot;outlinewidth&quot;:0,&quot;ticks&quot;:&quot;&quot;}}}],&quot;scatter3d&quot;:[{&quot;type&quot;:&quot;scatter3d&quot;,&quot;line&quot;:{&quot;colorbar&quot;:{&quot;outlinewidth&quot;:0,&quot;ticks&quot;:&quot;&quot;}},&quot;marker&quot;:{&quot;colorbar&quot;:{&quot;outlinewidth&quot;:0,&quot;ticks&quot;:&quot;&quot;}}}],&quot;scattermap&quot;:[{&quot;type&quot;:&quot;scattermap&quot;,&quot;marker&quot;:{&quot;colorbar&quot;:{&quot;outlinewidth&quot;:0,&quot;ticks&quot;:&quot;&quot;}}}],&quot;scattermapbox&quot;:[{&quot;type&quot;:&quot;scattermapbox&quot;,&quot;marker&quot;:{&quot;colorbar&quot;:{&quot;outlinewidth&quot;:0,&quot;ticks&quot;:&quot;&quot;}}}],&quot;scatterternary&quot;:[{&quot;type&quot;:&quot;scatterternary&quot;,&quot;marker&quot;:{&quot;colorbar&quot;:{&quot;outlinewidth&quot;:0,&quot;ticks&quot;:&quot;&quot;}}}],&quot;scattercarpet&quot;:[{&quot;type&quot;:&quot;scattercarpet&quot;,&quot;marker&quot;:{&quot;colorbar&quot;:{&quot;outlinewidth&quot;:0,&quot;ticks&quot;:&quot;&quot;}}}],&quot;carpet&quot;:[{&quot;aaxis&quot;:{&quot;endlinecolor&quot;:&quot;#2a3f5f&quot;,&quot;gridcolor&quot;:&quot;white&quot;,&quot;linecolor&quot;:&quot;white&quot;,&quot;minorgridcolor&quot;:&quot;white&quot;,&quot;startlinecolor&quot;:&quot;#2a3f5f&quot;},&quot;baxis&quot;:{&quot;endlinecolor&quot;:&quot;#2a3f5f&quot;,&quot;gridcolor&quot;:&quot;white&quot;,&quot;linecolor&quot;:&quot;white&quot;,&quot;minorgridcolor&quot;:&quot;white&quot;,&quot;startlinecolor&quot;:&quot;#2a3f5f&quot;},&quot;type&quot;:&quot;carpet&quot;}],&quot;table&quot;:[{&quot;cells&quot;:{&quot;fill&quot;:{&quot;color&quot;:&quot;#EBF0F8&quot;},&quot;line&quot;:{&quot;color&quot;:&quot;white&quot;}},&quot;header&quot;:{&quot;fill&quot;:{&quot;color&quot;:&quot;#C8D4E3&quot;},&quot;line&quot;:{&quot;color&quot;:&quot;white&quot;}},&quot;type&quot;:&quot;table&quot;}],&quot;barpolar&quot;:[{&quot;marker&quot;:{&quot;line&quot;:{&quot;color&quot;:&quot;#E5ECF6&quot;,&quot;width&quot;:0.5},&quot;pattern&quot;:{&quot;fillmode&quot;:&quot;overlay&quot;,&quot;size&quot;:10,&quot;solidity&quot;:0.2}},&quot;type&quot;:&quot;barpolar&quot;}],&quot;pie&quot;:[{&quot;automargin&quot;:true,&quot;type&quot;:&quot;pie&quot;}]},&quot;layout&quot;:{&quot;autotypenumbers&quot;:&quot;strict&quot;,&quot;colorway&quot;:[&quot;#636efa&quot;,&quot;#EF553B&quot;,&quot;#00cc96&quot;,&quot;#ab63fa&quot;,&quot;#FFA15A&quot;,&quot;#19d3f3&quot;,&quot;#FF6692&quot;,&quot;#B6E880&quot;,&quot;#FF97FF&quot;,&quot;#FECB52&quot;],&quot;font&quot;:{&quot;color&quot;:&quot;#2a3f5f&quot;},&quot;hovermode&quot;:&quot;closest&quot;,&quot;hoverlabel&quot;:{&quot;align&quot;:&quot;left&quot;},&quot;paper_bgcolor&quot;:&quot;white&quot;,&quot;plot_bgcolor&quot;:&quot;#E5ECF6&quot;,&quot;polar&quot;:{&quot;bgcolor&quot;:&quot;#E5ECF6&quot;,&quot;angularaxis&quot;:{&quot;gridcolor&quot;:&quot;white&quot;,&quot;linecolor&quot;:&quot;white&quot;,&quot;ticks&quot;:&quot;&quot;},&quot;radialaxis&quot;:{&quot;gridcolor&quot;:&quot;white&quot;,&quot;linecolor&quot;:&quot;white&quot;,&quot;ticks&quot;:&quot;&quot;}},&quot;ternary&quot;:{&quot;bgcolor&quot;:&quot;#E5ECF6&quot;,&quot;aaxis&quot;:{&quot;gridcolor&quot;:&quot;white&quot;,&quot;linecolor&quot;:&quot;white&quot;,&quot;ticks&quot;:&quot;&quot;},&quot;baxis&quot;:{&quot;gridcolor&quot;:&quot;white&quot;,&quot;linecolor&quot;:&quot;white&quot;,&quot;ticks&quot;:&quot;&quot;},&quot;caxis&quot;:{&quot;gridcolor&quot;:&quot;white&quot;,&quot;linecolor&quot;:&quot;white&quot;,&quot;ticks&quot;:&quot;&quot;}},&quot;coloraxis&quot;:{&quot;colorbar&quot;:{&quot;outlinewidth&quot;:0,&quot;ticks&quot;:&quot;&quot;}},&quot;colorscale&quot;:{&quot;sequential&quot;:[[0.0,&quot;#0d0887&quot;],[0.1111111111111111,&quot;#46039f&quot;],[0.2222222222222222,&quot;#7201a8&quot;],[0.3333333333333333,&quot;#9c179e&quot;],[0.4444444444444444,&quot;#bd3786&quot;],[0.5555555555555556,&quot;#d8576b&quot;],[0.6666666666666666,&quot;#ed7953&quot;],[0.7777777777777778,&quot;#fb9f3a&quot;],[0.8888888888888888,&quot;#fdca26&quot;],[1.0,&quot;#f0f921&quot;]],&quot;sequentialminus&quot;:[[0.0,&quot;#0d0887&quot;],[0.1111111111111111,&quot;#46039f&quot;],[0.2222222222222222,&quot;#7201a8&quot;],[0.3333333333333333,&quot;#9c179e&quot;],[0.4444444444444444,&quot;#bd3786&quot;],[0.5555555555555556,&quot;#d8576b&quot;],[0.6666666666666666,&quot;#ed7953&quot;],[0.7777777777777778,&quot;#fb9f3a&quot;],[0.8888888888888888,&quot;#fdca26&quot;],[1.0,&quot;#f0f921&quot;]],&quot;diverging&quot;:[[0,&quot;#8e0152&quot;],[0.1,&quot;#c51b7d&quot;],[0.2,&quot;#de77ae&quot;],[0.3,&quot;#f1b6da&quot;],[0.4,&quot;#fde0ef&quot;],[0.5,&quot;#f7f7f7&quot;],[0.6,&quot;#e6f5d0&quot;],[0.7,&quot;#b8e186&quot;],[0.8,&quot;#7fbc41&quot;],[0.9,&quot;#4d9221&quot;],[1,&quot;#276419&quot;]]},&quot;xaxis&quot;:{&quot;gridcolor&quot;:&quot;white&quot;,&quot;linecolor&quot;:&quot;white&quot;,&quot;ticks&quot;:&quot;&quot;,&quot;title&quot;:{&quot;standoff&quot;:15},&quot;zerolinecolor&quot;:&quot;white&quot;,&quot;automargin&quot;:true,&quot;zerolinewidth&quot;:2},&quot;yaxis&quot;:{&quot;gridcolor&quot;:&quot;white&quot;,&quot;linecolor&quot;:&quot;white&quot;,&quot;ticks&quot;:&quot;&quot;,&quot;title&quot;:{&quot;standoff&quot;:15},&quot;zerolinecolor&quot;:&quot;white&quot;,&quot;automargin&quot;:true,&quot;zerolinewidth&quot;:2},&quot;scene&quot;:{&quot;xaxis&quot;:{&quot;backgroundcolor&quot;:&quot;#E5ECF6&quot;,&quot;gridcolor&quot;:&quot;white&quot;,&quot;linecolor&quot;:&quot;white&quot;,&quot;showbackground&quot;:true,&quot;ticks&quot;:&quot;&quot;,&quot;zerolinecolor&quot;:&quot;white&quot;,&quot;gridwidth&quot;:2},&quot;yaxis&quot;:{&quot;backgroundcolor&quot;:&quot;#E5ECF6&quot;,&quot;gridcolor&quot;:&quot;white&quot;,&quot;linecolor&quot;:&quot;white&quot;,&quot;showbackground&quot;:true,&quot;ticks&quot;:&quot;&quot;,&quot;zerolinecolor&quot;:&quot;white&quot;,&quot;gridwidth&quot;:2},&quot;zaxis&quot;:{&quot;backgroundcolor&quot;:&quot;#E5ECF6&quot;,&quot;gridcolor&quot;:&quot;white&quot;,&quot;linecolor&quot;:&quot;white&quot;,&quot;showbackground&quot;:true,&quot;ticks&quot;:&quot;&quot;,&quot;zerolinecolor&quot;:&quot;white&quot;,&quot;gridwidth&quot;:2}},&quot;shapedefaults&quot;:{&quot;line&quot;:{&quot;color&quot;:&quot;#2a3f5f&quot;}},&quot;annotationdefaults&quot;:{&quot;arrowcolor&quot;:&quot;#2a3f5f&quot;,&quot;arrowhead&quot;:0,&quot;arrowwidth&quot;:1},&quot;geo&quot;:{&quot;bgcolor&quot;:&quot;white&quot;,&quot;landcolor&quot;:&quot;#E5ECF6&quot;,&quot;subunitcolor&quot;:&quot;white&quot;,&quot;showland&quot;:true,&quot;showlakes&quot;:true,&quot;lakecolor&quot;:&quot;white&quot;},&quot;title&quot;:{&quot;x&quot;:0.05},&quot;mapbox&quot;:{&quot;style&quot;:&quot;light&quot;}}},&quot;title&quot;:{&quot;font&quot;:{&quot;size&quot;:13,&quot;color&quot;:&quot;#001E62&quot;},&quot;text&quot;:&quot;Family Survey: Year-over-Year Change by Question&quot;,&quot;x&quot;:0.01},&quot;xaxis&quot;:{&quot;title&quot;:{&quot;text&quot;:&quot;% Positive Response&quot;},&quot;range&quot;:[78.3,102],&quot;ticksuffix&quot;:&quot;%&quot;,&quot;showgrid&quot;:true,&quot;gridcolor&quot;:&quot;#eef1f8&quot;,&quot;zeroline&quot;:false},&quot;yaxis&quot;:{&quot;type&quot;:&quot;category&quot;},&quot;legend&quot;:{&quot;orientation&quot;:&quot;h&quot;,&quot;yanchor&quot;:&quot;bottom&quot;,&quot;y&quot;:1.01,&quot;xanchor&quot;:&quot;left&quot;,&quot;x&quot;:0},&quot;margin&quot;:{&quot;l&quot;:185,&quot;r&quot;:40,&quot;t&quot;:70,&quot;b&quot;:50},&quot;plot_bgcolor&quot;:&quot;white&quot;,&quot;paper_bgcolor&quot;:&quot;white&quot;,&quot;height&quot;:480,&quot;width&quot;:1000},                        {&quot;responsive&quot;: true}                    )                };            </script>        </div>
+</body>
+</html>" style="width:100%;height:500px;border:none;" scrolling="no" title="Year-over-year change"></iframe>
+  </div>
+
+  <div class="table-section">
+    <div class="section-label">Question-Level Results</div>
+    <table class="summary">
+      <thead>
+        <tr>
+          <th>Question</th>
+          <th class="num">SY 24&#8211;25</th>
+          <th class="num">SY 25&#8211;26</th>
+          <th>Change</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="q-label">Lessons & resources</td><td class="num">95.6%</td><td class="num">97.1%</td><td><span class="badge up">&#9650; +1.5 pts</span></td></tr>
+        <tr><td class="q-label">Staff-student interactions</td><td class="num">96.5%</td><td class="num">96.9%</td><td><span class="badge up">&#9650; +0.4 pts</span></td></tr>
+        <tr><td class="q-label">Instructional practices</td><td class="num">93.5%</td><td class="num">95.4%</td><td><span class="badge up">&#9650; +1.9 pts</span></td></tr>
+        <tr><td class="q-label">Learning outcomes</td><td class="num">91.6%</td><td class="num">92.7%</td><td><span class="badge up">&#9650; +1.1 pts</span></td></tr>
+        <tr><td class="q-label">Student expectations</td><td class="num">92.5%</td><td class="num">92.3%</td><td><span class="badge dn">&#9660; -0.2 pts</span></td></tr>
+        <tr><td class="q-label">Student input on decisions</td><td class="num">90.9%</td><td class="num">91.5%</td><td><span class="badge up">&#9650; +0.6 pts</span></td></tr>
+        <tr><td class="q-label">Family engagement</td><td class="num">92.2%</td><td class="num">90.7%</td><td><span class="badge dn">&#9660; -1.5 pts</span></td></tr>
+        <tr><td class="q-label">Staff response to behavior</td><td class="num">91.3%</td><td class="num">89.2%</td><td><span class="badge dn">&#9660; -2.1 pts</span></td></tr>
+        <tr><td class="q-label">Student activities</td><td class="num">86.9%</td><td class="num">86.3%</td><td><span class="badge dn">&#9660; -0.6 pts</span></td></tr>
+        <tr><td class="q-label">Why school matters</td><td class="num">92.5%</td><td class="num">&mdash;</td><td><span class="badge missing">not in SY 25&#8211;26</span></td></tr>
+        <tr class="overall-row"><td>Overall</td><td class="num">92.3%</td><td class="num">92.4%</td><td><span class="badge up">&#9650; +0.1 pts</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    <strong>How to read:</strong> A &ldquo;positive&rdquo; rating means the family selected one of the top two options on a 4-point scale
+    (1&nbsp;=&nbsp;most positive, 4&nbsp;=&nbsp;least positive). Option 5 (&ldquo;no context&rdquo;) excluded from both numerator and denominator.
+    &nbsp;&middot;&nbsp;
+    <span class="c-up">Green</span> = improved &nbsp;&middot;&nbsp;
+    <span class="c-dn">Red</span> = declined &nbsp;&middot;&nbsp;
+    <span class="c-ms">Amber</span> = question not included in SY 2025&#8211;26 (&ldquo;Why school matters&rdquo;).
+    <br>
+    <strong>Sources:</strong> SY 2024&#8211;25: district system export. SY 2025&#8211;26: Finalsite family survey export.
+    Respondent counts are approximate (max responses across questions). Overall = weighted sum across questions.
+  </div>
+</div>
+</body>
+</html>
