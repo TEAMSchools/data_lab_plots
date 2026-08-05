@@ -85,16 +85,29 @@ p{margin:0 0 16px; color:var(--body-text);}
 .hero p{color:#C9C7BC;}
 .hero .lede{max-width:600px;}
 
-/* TICKET CARD (signature component) */
-.ticket-card{
+/* MOCK EMAIL WINDOW (signature component) */
+.email-window{
   background:#fff; border-radius:6px; overflow:hidden; margin-top:40px;
-  box-shadow:0 24px 60px rgba(0,0,0,0.35); max-width:640px;
+  box-shadow:0 24px 60px rgba(0,0,0,0.35); max-width:640px; border:1px solid #D6D6D6;
 }
-.ticket-head{
-  background:var(--paper); border-bottom:1px solid var(--paper-line);
-  padding:14px 20px; display:flex; justify-content:space-between; align-items:center;
+.email-titlebar{
+  background:#F3F2F1; border-bottom:1px solid #E1DFDD;
+  padding:9px 14px; display:flex; align-items:center; justify-content:space-between;
+  font-family:var(--body); font-size:12.5px; color:#323130;
 }
-.ticket-id{font-family:var(--mono); font-size:12px; color:var(--muted);}
+.email-titlebar-app{display:flex; align-items:center; gap:7px; font-weight:600;}
+.email-titlebar-icon{width:13px; height:13px; border-radius:3px; background:#0078D4; display:inline-block;}
+.email-titlebar-controls{color:#8A8886; font-size:13px; letter-spacing:0.12em;}
+.email-meta{padding:16px 20px 14px; border-bottom:1px solid #EDEBE9;}
+.email-meta-row{display:flex; gap:10px; font-size:13px; padding:2px 0; color:#323130;}
+.email-meta-label{width:48px; flex-shrink:0; color:#8A8886;}
+.email-subject{font-weight:600; font-size:14.5px; margin-top:6px; color:#201F1E;}
+.email-body{padding:20px; font-size:14.5px; color:#201F1E; line-height:1.6;}
+.email-body p{margin:0 0 14px;}
+.email-body p:last-child{margin-bottom:0;}
+.email-body a{color:#0078D4; text-decoration:underline;}
+.email-links a{display:block; margin-bottom:6px;}
+
 .status-chip{
   font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:0.05em;
   padding:3px 9px; border-radius:3px; color:#fff;
@@ -103,20 +116,12 @@ p{margin:0 0 16px; color:var(--body-text);}
 .status-chip.solved{background:var(--solved);}
 .status-chip.new{background:var(--new);}
 .status-chip.escalate{background:var(--escalate);}
-.ticket-body{padding:20px; color:var(--body-text);}
-.msg{padding:14px 16px; border-radius:6px; margin-bottom:12px; font-size:14.5px;}
-.msg-requester{background:#F1EFE9; }
-.msg-ai{background:#FBF3E4; border:1px solid #EBD9AF;}
-.msg-label{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); margin-bottom:6px; display:flex; align-items:center; gap:6px;}
-.ai-flag{background:var(--pending); color:#fff; padding:1px 6px; border-radius:3px; font-size:10px;}
 .ticket-actions{display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;}
 .btn{
   font-family:var(--mono); font-size:12px; padding:8px 14px; border-radius:4px; border:1px solid var(--paper-line);
-  background:#fff; cursor:default; color:var(--body-text);
+  background:#fff; cursor:pointer; color:var(--body-text); text-decoration:none; display:inline-block;
 }
-.btn.primary{background:var(--solved); color:#fff; border:none;}
-.btn.ghost{background:none; border:1px solid rgba(255,255,255,0.0);}
-.tag-row{margin-top:14px; display:flex; gap:8px;}
+.tag-row{margin-top:14px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
 .tag{font-family:var(--mono); font-size:11px; background:var(--ink); color:var(--ink-text); padding:3px 8px; border-radius:3px;}
 
 /* IMPACT SECTION */
@@ -226,30 +231,31 @@ footer p{font-family:var(--mono); font-size:12px; color:var(--muted);}
       <h1>First drafts for the tickets<br>we already know how to answer.</h1>
       <p class="lede">An internal-only assistant that reads a new Zendesk ticket, checks it against our own Help Center and years of resolved tickets, and drafts a first-pass reply — clearly labeled as AI, always reviewed, never closed without a human or the requester saying so.</p>
 
-      <div class="ticket-card">
-        <div class="ticket-head">
-          <span class="ticket-id">#48291 · data kippteamandfamily.org</span>
-          <span class="status-chip pending">Pending</span>
+      <div class="email-window">
+        <div class="email-titlebar">
+          <div class="email-titlebar-app"><span class="email-titlebar-icon"></span> Outlook</div>
+          <div class="email-titlebar-controls">─&nbsp;&nbsp;□&nbsp;&nbsp;✕</div>
         </div>
-        <div class="ticket-body">
-          <div class="msg msg-requester">
-            <div class="msg-label">Jordan T. · Newark Regional Office</div>
-            "Hi — I need the Q3 attendance export broken out by school, same format as last time. Can someone send that over?"
-          </div>
-          <div class="msg msg-ai">
-            <div class="msg-label">Ticket Assist <span class="ai-flag">AI-Generated</span></div>
-            This is an automated first response, matched against a past request that used the same report format. Attached is the Q3 attendance export by school, generated from the same query used in ticket #41007.<br><br>
-            If this answers your question, you can close this out below. If not, just reply and a team member will pick it up.
-          </div>
-          <div class="ticket-actions">
-            <button class="btn primary">✓ This answered it — close ticket</button>
-            <button class="btn">Escalate to a person</button>
-          </div>
-          <div class="tag-row">
-            <span class="tag">ai-responded</span>
-            <span class="tag">queue:data</span>
-          </div>
+        <div class="email-meta">
+          <div class="email-meta-row"><span class="email-meta-label">From</span><span>Ticket Assist &lt;support@kippteamandfamily.org&gt;</span></div>
+          <div class="email-meta-row"><span class="email-meta-label">To</span><span>Jordan T. &lt;jordan.t@kippteamandfamily.org&gt;</span></div>
+          <div class="email-subject">Re: [#48291] Q3 attendance export by school</div>
         </div>
+        <div class="email-body">
+          <p>Hi Jordan,</p>
+          <p>This is an automated first response, matched against a past request that used the same report format. I queried Cube and generated the attached Q3 attendance export by school.</p>
+          <p>If this answers your question, let us know below. If not, just reply to this email and a team member will pick it up.</p>
+          <p class="email-links">
+            <a href="https://yourapp.com/feedback?ticket_id={{ticket.id}}&action=solved&token={{signature}}">✓ This solved my issue</a>
+            <a href="https://yourapp.com/feedback?ticket_id={{ticket.id}}&action=escalate&token={{signature}}">✗ Need escalation</a>
+          </p>
+        </div>
+      </div>
+
+      <div class="tag-row">
+        <span class="status-chip pending">Zendesk status: Pending</span>
+        <span class="tag">ai-responded</span>
+        <span class="tag">queue:data</span>
       </div>
     </div>
   </section>
