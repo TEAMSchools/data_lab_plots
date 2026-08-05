@@ -206,6 +206,11 @@ tr:last-child td{border-bottom:none;}
 
 .metric-badge{font-family:var(--mono); font-size:11px; padding:2px 8px; border-radius:3px; background:var(--paper-line);}
 
+.sources-list{list-style:none; padding:0; margin:0; font-family:var(--mono); font-size:12.5px; color:var(--muted);}
+.sources-list li{padding:8px 0; border-bottom:1px solid var(--paper-line);}
+.sources-list li:last-child{border-bottom:none;}
+.sources-list a{color:var(--new); text-decoration:underline;}
+
 footer{padding:40px 28px 60px; text-align:center;}
 footer p{font-family:var(--mono); font-size:12px; color:var(--muted);}
 </style>
@@ -583,9 +588,9 @@ footer p{font-family:var(--mono); font-size:12px; color:var(--muted);}
         <div class="step-num">01</div>
         <div>
           <h3>Zendesk API access</h3>
-          <p>Create a dedicated service account (not a personal login) and generate an API token scoped to it. Confirm scopes cover ticket read/write, comment creation, tagging, and Help Center read.</p>
+          <p>Create a dedicated service account (not a personal login) with an <strong>agent role</strong> — role and access scope are two separate checks, and both have to pass. Generate an <a href="https://developer.zendesk.com/documentation/api-basics/authentication/creating-and-using-oauth-tokens-with-the-api/">OAuth access token</a> for it with the <code>tickets:write</code> scope, plus whatever read scopes cover Help Center content — not a plain API token, since <a href="https://support.zendesk.com/hc/en-us/articles/10851263566234-Announcing-the-removal-of-API-tokens-as-an-authentication-method-for-API-requests">Zendesk is deactivating API tokens as an authentication method on April 30, 2027</a>. An end-user-scoped account can't write to tickets no matter what scope we grant the token, so the account's role is the thing to check first if a call fails.</p>
           <ul class="checklist">
-            <li>API token + subdomain stored as secrets, not in code</li>
+            <li>OAuth client ID/secret + subdomain stored as secrets, not in code</li>
             <li>Webhook subscriptions created: ticket created, ticket status changed to solved</li>
             <li>Confirm rate limits for our plan tier before assuming call volume is free</li>
           </ul>
@@ -604,9 +609,9 @@ footer p{font-family:var(--mono); font-size:12px; color:var(--muted);}
         <div class="step-num">03</div>
         <div>
           <h3>Connect the agent to Zendesk MCP and Cube</h3>
-          <p>No server for us to build here — confirm Zendesk's MCP server covers what the agent needs (search articles and past tickets, read a full article or ticket, post a comment, tag, and assign), and give the agent access alongside our existing Cube MCP connection for live data queries.</p>
+          <p>No server for us to build here — confirm Zendesk's MCP server covers what the agent needs (search articles and past tickets, read a full article or ticket, post a comment, tag, and assign), and give the agent access alongside our existing Cube MCP connection for live data queries. The underlying <a href="https://developer.zendesk.com/api-reference/ticketing/tickets/tickets/">Tickets API</a> supports all of this in a single call — status, assignee, and a <a href="https://developer.zendesk.com/api-reference/ticketing/tickets/ticket_comments/">reply comment</a> can be set together (there's no separate "create comment" endpoint; <a href="https://support.zendesk.com/hc/en-us/articles/4408827589658-How-do-I-add-a-comment-to-a-ticket-via-API">comments are added by updating the ticket</a>) — so the only open question is whether our chosen MCP server exposes assignment as a tool, not whether Zendesk supports it.</p>
           <ul class="checklist">
-            <li>Confirm Zendesk's MCP server can assign a ticket to a specific person; if it can't yet, that's a small gap to close before pilot</li>
+            <li>Confirm the Zendesk MCP server exposes ticket assignment, not just reads and comments — not every MCP wrapper surfaces every field the underlying API allows</li>
             <li>Reuse our existing Cube MCP connection for live data queries — no new service to stand up</li>
             <li>Scope every write action (comment, tag, assign) to internal-only tickets, same as any other write tool</li>
           </ul>
@@ -653,6 +658,20 @@ footer p{font-family:var(--mono); font-size:12px; color:var(--muted);}
         </div>
       </div>
 
+    </div>
+  </section>
+
+  <section style="padding-top:0;">
+    <div class="wrap">
+      <h2>Sources</h2>
+      <ul class="sources-list">
+        <li><a href="https://developer.zendesk.com/api-reference/ticketing/tickets/tickets/">Zendesk Developer Docs — Tickets API reference</a></li>
+        <li><a href="https://developer.zendesk.com/api-reference/ticketing/tickets/ticket_comments/">Zendesk Developer Docs — Ticket Comments</a></li>
+        <li><a href="https://support.zendesk.com/hc/en-us/articles/4408827589658-How-do-I-add-a-comment-to-a-ticket-via-API">Zendesk Help — How do I add a comment to a ticket via API?</a></li>
+        <li><a href="https://developer.zendesk.com/documentation/api-basics/authentication/creating-and-using-oauth-tokens-with-the-api/">Zendesk Developer Docs — Creating and using OAuth access tokens with the API</a></li>
+        <li><a href="https://support.zendesk.com/hc/en-us/articles/10851263566234-Announcing-the-removal-of-API-tokens-as-an-authentication-method-for-API-requests">Zendesk Help — Announcing the removal of API tokens as an authentication method</a></li>
+        <li><a href="https://www.eesel.ai/blog/zendesk-api-oauth-scopes">eesel AI — Zendesk API OAuth scopes: a developer guide</a></li>
+      </ul>
     </div>
   </section>
 </div>
