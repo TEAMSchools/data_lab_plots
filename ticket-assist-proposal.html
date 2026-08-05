@@ -373,17 +373,17 @@ footer p{font-family:var(--mono); font-size:12px; color:var(--muted);}
         <div class="flow-step">
           <div class="flow-marker">4</div>
           <div class="flow-content">
-            <h3>Retrieval via MCP</h3>
-            <p>Orchestrator calls a custom MCP server's <code>search_best_match</code> tool, which runs hybrid search (keyword + cosine similarity) over embedded Help Center articles and the last 16 months of resolved tickets, filtered first to the same queue.</p>
-            <div class="flow-tools"><span class="pill">Custom MCP server</span><span class="pill">Postgres + pgvector</span></div>
+            <h3>Orchestrator hands off to an agent</h3>
+            <p>Rather than one fixed step, the orchestrator hands the ticket to a Claude agent that picks from a few tools depending on what it actually needs. To look for a written answer, it searches our Help Center articles and past resolved tickets through Zendesk's own MCP server — starting with the same queue the ticket came from, since that's usually where the closest precedent lives. If the question is really about a live number instead of a written answer (an attendance export, an enrollment count), it queries our Cube semantic layer directly instead of digging up a past answer that may already be out of date.</p>
+            <div class="flow-tools"><span class="pill">Zendesk MCP</span><span class="pill">Cube semantic layer</span></div>
           </div>
         </div>
         <div class="flow-step gate">
           <div class="flow-marker">5</div>
           <div class="flow-content">
             <h3>Confidence gate</h3>
-            <p>If the top match's similarity score clears the threshold set during evaluation, proceed to generation. If not, skip straight to the canned escalation path.</p>
-            <div class="flow-tools"><span class="pill">Cosine similarity threshold</span></div>
+            <p>Before drafting anything, the agent has to say how confident it is in what it found. Confident enough, and it moves on to writing a reply. Not confident — or nothing relevant turned up at all — and the ticket skips straight to being routed to a person instead.</p>
+            <div class="flow-tools"><span class="pill">Confidence rubric (set during evaluation)</span></div>
           </div>
         </div>
         <div class="flow-step">
@@ -391,22 +391,22 @@ footer p{font-family:var(--mono); font-size:12px; color:var(--muted);}
           <div class="flow-content">
             <h3>Response drafted</h3>
             <p>Claude generates a reply grounded only in the matched article or prior resolution — with mandatory AI-disclosure language, an escalation offer, and close-out instructions baked into the prompt.</p>
-            <div class="flow-tools"><span class="pill">Claude API</span><span class="pill">MCP tool: get_article / get_ticket</span></div>
+            <div class="flow-tools"><span class="pill">Claude API</span><span class="pill">Zendesk MCP: get_article / get_ticket</span></div>
           </div>
         </div>
         <div class="flow-step exit">
           <div class="flow-marker">7</div>
           <div class="flow-content">
             <h3>Posted back to the ticket</h3>
-            <p>Reply posted as a public comment. Status set to <strong>Pending</strong> (never Solved), tagged <code>ai-responded</code>, queue tag preserved.</p>
-            <div class="flow-tools"><span class="pill">MCP tool: post_comment / tag_ticket</span></div>
+            <p>Reply posted as a public comment. Status set to <strong>Pending</strong> (never Solved), tagged <code>ai-responded</code>, queue tag preserved. If the agent couldn't fully answer it, it also looks at who resolved similar tickets before and assigns this one straight to that staff member, instead of leaving it for someone to notice in a shared queue.</p>
+            <div class="flow-tools"><span class="pill">Zendesk MCP: post_comment / tag_ticket / assign_ticket</span></div>
           </div>
         </div>
         <div class="flow-step exit">
           <div class="flow-marker">8</div>
           <div class="flow-content">
             <h3>Two ways it resolves</h3>
-            <p>Requester replies "close this out" (or similar) or clicks a signed close-out link → a small webhook endpoint marks the ticket Solved. Otherwise, a staff member reviews the <code>ai-responded</code> view and handles it like any ticket.</p>
+            <p>Requester clicks "✓ This solved my issue" or replies to say it's handled → a small webhook marks the ticket Solved. Otherwise, it's already sitting with the staff member the agent assigned it to, tagged <code>ai-responded</code> so it's easy to spot during review. Either way, the outcome gets logged, so over time we can see what's actually working and adjust the tool accordingly.</p>
             <div class="flow-tools"><span class="pill">Close-out webhook</span><span class="pill">Zendesk view/filter</span></div>
           </div>
         </div>
@@ -431,10 +431,11 @@ footer p{font-family:var(--mono); font-size:12px; color:var(--muted);}
         <div class="split-col">
           <h3><span class="status-chip new" style="font-size:10px;">staff / agents</span></h3>
           <ul>
-            <li>A saved view filters to the <code>ai-responded</code> tag, so reviewing AI replies is a deliberate queue, not noise in the main list.</li>
+            <li>Each ticket the AI can't fully close is assigned directly to whoever's handled similar requests before, based on ticket history — not just dropped into a shared queue for someone to notice.</li>
+            <li>A saved view still filters to the <code>ai-responded</code> tag, so there's always a full list to check, even before anything's been picked up.</li>
             <li>Agents can edit, replace, or approve the reply, or leave it if the requester already confirmed it worked.</li>
             <li>The AI never sets a ticket to Solved — that stays a person's or the requester's call in this phase.</li>
-            <li>Escalated (low-confidence) tickets are tagged <code>needs-human</code> and routed like a normal new ticket.</li>
+            <li>Escalated (low-confidence) tickets get the same smart assignment, tagged <code>needs-human</code>.</li>
           </ul>
         </div>
       </div>
@@ -447,11 +448,10 @@ footer p{font-family:var(--mono); font-size:12px; color:var(--muted);}
       <table>
         <tr><th>Layer</th><th>Tool</th><th>Why this one</th></tr>
         <tr><td>Ticketing & knowledge base</td><td>Zendesk (existing)</td><td>Source of truth for tickets and Help Center articles — no migration needed.</td></tr>
-        <tr><td>Retrieval store</td><td>Postgres + pgvector</td><td>One database does hybrid keyword + vector search — no separate vector service to run.</td></tr>
-        <tr><td>Tool interface</td><td>Custom MCP server</td><td>Standard interface between Claude and our retrieval/ticket-write logic; namespaced, read/write tools kept separate.</td></tr>
+        <tr><td>Search & ticket actions</td><td>Zendesk MCP server</td><td>Vendor-provided interface the agent uses to search articles/past tickets and to read, comment on, tag, and assign tickets — no search index or database for us to build and maintain.</td></tr>
+        <tr><td>Live data queries</td><td>Cube semantic layer (existing)</td><td>Exposed to the agent as a <code>query_cube</code> tool, so numeric/reporting asks pull current data instead of only matching against a past resolved ticket.</td></tr>
         <tr><td>Generation</td><td>Claude API</td><td>Drafts the grounded reply from the matched content only.</td></tr>
-        <tr><td>Orchestration & scheduling</td><td>Dagster</td><td>Webhook-triggered job for live replies; scheduled jobs for daily incremental indexing, weekly consistency checks, monthly full rebuilds.</td></tr>
-        <tr><td>Indexing scripts</td><td>Python</td><td>Pulls new articles/resolved tickets from Zendesk, embeds, upserts into Postgres.</td></tr>
+        <tr><td>Orchestration & scheduling</td><td>Dagster</td><td>Runs the webhook-triggered job that handles each new ticket as it comes in. No separate indexing pipeline to schedule.</td></tr>
         <tr><td>Evaluation</td><td>Promptfoo</td><td>Automated scoring of retrieval and generation quality before anything ships. Detailed on the next page.</td></tr>
       </table>
     </div>
@@ -493,8 +493,8 @@ footer p{font-family:var(--mono); font-size:12px; color:var(--muted);}
 
   <section style="padding-top:0;">
     <div class="wrap">
-      <h2>Setting the confidence threshold</h2>
-      <p>Rather than picking a cosine similarity cutoff by feel, we run retrieval against the labeled set and plot the similarity score distribution for known-correct matches against known-incorrect ones. The threshold sits wherever those two distributions actually separate — and we bias it toward <strong>precision over recall</strong> at launch: a missed match just escalates like normal (no cost), while a wrong confident answer is the expensive failure.</p>
+      <h2>Setting the confidence bar</h2>
+      <p>We no longer compute our own similarity score — Zendesk's MCP server handles the actual search, and the agent reports back how confident it is in what it found. So instead of plotting a similarity cutoff, we run the agent against the labeled set and check, ticket by ticket, whether "confident" actually meant "correct." The bar sits wherever confident-and-right cleanly separates from confident-and-wrong — and we set it to favor <strong>precision over recall</strong> at launch: a missed match just escalates like normal (no cost), while a wrong confident answer is the expensive failure.</p>
       <div class="code">
 <span class="c1"># conceptual promptfoo test case</span><br>
 - <span class="c2">description:</span> "data queue — known report-format match"<br>
@@ -513,9 +513,8 @@ footer p{font-family:var(--mono); font-size:12px; color:var(--muted);}
     <div class="wrap">
       <h2>When the suite runs</h2>
       <ul class="candidate-list">
-        <li>Before shipping any prompt, model, or retrieval-logic change — a hard gate, not a suggestion</li>
-        <li>On a recurring weekly schedule, since the corpus keeps growing and score distributions can drift as it does</li>
-        <li>After each monthly full reindex, to catch anything the rebuild changed</li>
+        <li>Before shipping any prompt or confidence-bar change — a hard gate, not a suggestion</li>
+        <li>On a recurring weekly schedule, since ticket volume keeps growing and how well "confident" tracks "correct" can drift as it does</li>
       </ul>
     </div>
   </section>
@@ -558,7 +557,7 @@ footer p{font-family:var(--mono); font-size:12px; color:var(--muted);}
       <ul class="candidate-list">
         <li><strong>Confidence threshold variants</strong> — run two thresholds concurrently on random ticket splits within a queue, compare close-rate vs. escalate-rate vs. eventual human correction rate</li>
         <li><strong>Prompt / tone variants</strong> — does a more concise reply out-perform a more explanatory one on close-vs-escalate rate, controlling for the same matched source</li>
-        <li><strong>Retrieval strategy</strong> — pure vector vs. hybrid (keyword + vector) scoring, held out by ticket cohort, compared against the same outcome labels</li>
+        <li><strong>Query construction</strong> — raw ticket text vs. a cleaned-up query (stripping pleasantries, keeping the actual ask) handed to Zendesk's search, held out by ticket cohort, compared against the same outcome labels</li>
         <li><strong>Holdout for causal impact</strong> — a small, randomly withheld slice of otherwise-eligible tickets gets normal human-only handling, so we can honestly attribute changes in resolution time or reopen rate to the tool itself, not just to seasonal ticket-mix shifts</li>
       </ul>
       <div class="callout blue">Worth sizing this properly before running it — a queue's weekly ticket volume determines how long a test needs to run to detect a real difference in close-rate, not just how long feels reasonable. A quick power calculation up front avoids reading noise as a result.</div>
@@ -573,7 +572,7 @@ footer p{font-family:var(--mono); font-size:12px; color:var(--muted);}
     <div class="wrap">
       <div class="eyebrow">Implementation guide</div>
       <h1 style="color:var(--ink);">Step by step, start to pilot</h1>
-      <p class="lede">Ten stages, roughly in build order. Later stages assume earlier ones are working — this isn't meant to be parallelized on a first pass.</p>
+      <p class="lede">Eight stages, roughly in build order. Later stages assume earlier ones are working — this isn't meant to be parallelized on a first pass.</p>
     </div>
   </section>
 
@@ -604,46 +603,18 @@ footer p{font-family:var(--mono); font-size:12px; color:var(--muted);}
       <div class="step">
         <div class="step-num">03</div>
         <div>
-          <h3>Vector store setup</h3>
-          <p>Stand up Postgres with the pgvector extension. Two tables: <code>articles</code> and <code>tickets</code>, sharing a schema shape.</p>
-          <div class="code">
-articles / tickets<br>
-&nbsp;&nbsp;id, source_type, queue, title,<br>
-&nbsp;&nbsp;body_text, embedding vector(1536),<br>
-&nbsp;&nbsp;ts_vector, resolved_at, updated_at
-          </div>
+          <h3>Connect the agent to Zendesk MCP and Cube</h3>
+          <p>No server for us to build here — confirm Zendesk's MCP server covers what the agent needs (search articles and past tickets, read a full article or ticket, post a comment, tag, and assign), and give the agent access alongside our existing Cube MCP connection for live data queries.</p>
+          <ul class="checklist">
+            <li>Confirm Zendesk's MCP server can assign a ticket to a specific person; if it can't yet, that's a small gap to close before pilot</li>
+            <li>Reuse our existing Cube MCP connection for live data queries — no new service to stand up</li>
+            <li>Scope every write action (comment, tag, assign) to internal-only tickets, same as any other write tool</li>
+          </ul>
         </div>
       </div>
 
       <div class="step">
         <div class="step-num">04</div>
-        <div>
-          <h3>Indexer scripts</h3>
-          <p>Python scripts, run as Dagster assets:</p>
-          <ul class="checklist">
-            <li>Initial backfill: full Help Center corpus + last 16 months of solved tickets</li>
-            <li>Daily incremental job: new/updated articles, newly solved tickets since last run</li>
-            <li>Monthly full rebuild: re-pull and re-embed the entire window as a consistency check</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="step">
-        <div class="step-num">05</div>
-        <div>
-          <h3>Build the MCP server</h3>
-          <p>Custom server exposing namespaced tools, read and write kept clearly separate:</p>
-          <ul class="checklist">
-            <li><code>search_best_match(query, queue, k)</code> — hybrid retrieval + confidence score</li>
-            <li><code>get_article(id)</code> / <code>get_ticket(id)</code> — full content fetch</li>
-            <li><code>post_comment(ticket_id, text)</code> / <code>tag_ticket(ticket_id, tag)</code> — write tools, gated to internal-only tickets</li>
-          </ul>
-          <p>Hosted as a Docker service on our existing Elestio setup, behind oauth2-proxy like our other internal tools.</p>
-        </div>
-      </div>
-
-      <div class="step">
-        <div class="step-num">06</div>
         <div>
           <h3>Write the prompts</h3>
           <p>System prompt enforces: answer only from the matched source, always include AI-disclosure language, always offer escalation and the close-out phrase/link, never fabricate beyond the retrieved content. Include a handful of real (anonymized) past tickets as few-shot examples of the tone we want.</p>
@@ -651,31 +622,31 @@ articles / tickets<br>
       </div>
 
       <div class="step">
-        <div class="step-num">07</div>
+        <div class="step-num">05</div>
         <div>
           <h3>The orchestrator script</h3>
-          <p>The service that ties it together on each webhook event: domain check → call <code>search_best_match</code> → confidence gate → generate reply (or canned escalation) → <code>post_comment</code> + <code>tag_ticket</code> → set status to Pending. A second, much smaller endpoint handles the close-out link/keyword, independent of the retrieval path entirely.</p>
+          <p>The service that ties it together on each webhook event: domain check → agent searches via Zendesk MCP (or queries Cube directly for a numbers-shaped question) → confidence gate → generate reply, or route to a person and assign it based on who's handled similar tickets before → post the reply and tag the ticket → set status to Pending. A second, much smaller endpoint handles the close-out click/reply, independent of everything else.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">06</div>
+        <div>
+          <h3>Orchestration & scheduling in Dagster</h3>
+          <p>Down to one job instead of four: a webhook-triggered sensor that fires the orchestrator on every new ticket. There's no separate indexing schedule to maintain, since search runs against Zendesk's own live data instead of a copy we'd have to keep in sync.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">07</div>
+        <div>
+          <h3>Wire up the Promptfoo suite</h3>
+          <p>Build the labeled test set from historical tickets, score retrieval precision/recall and generation groundedness/escalation, and use those results to set the confidence bar — not before this step, since guessing a bar first just means redoing it.</p>
         </div>
       </div>
 
       <div class="step">
         <div class="step-num">08</div>
-        <div>
-          <h3>Orchestration & scheduling in Dagster</h3>
-          <p>Four jobs total: a webhook-triggered sensor for live ticket replies, a daily schedule for incremental indexing, a weekly schedule for the consistency check, and a monthly schedule for the full rebuild.</p>
-        </div>
-      </div>
-
-      <div class="step">
-        <div class="step-num">09</div>
-        <div>
-          <h3>Wire up the Promptfoo suite</h3>
-          <p>Build the labeled test set from historical tickets, get retrieval precision/recall and generation groundedness/escalation scores, and use the score distributions to set the confidence threshold — not before this step, since guessing a threshold first just means redoing it.</p>
-        </div>
-      </div>
-
-      <div class="step">
-        <div class="step-num">10</div>
         <div>
           <h3>Pilot rollout</h3>
           <p>Start with a single queue (the one with the most repetitive, well-documented traffic — likely data or IT). Every AI-answered ticket gets reviewed by a person during the pilot window. Only after we have real accuracy numbers from that review do we talk about loosening to spot-checks or adding a second queue.</p>
