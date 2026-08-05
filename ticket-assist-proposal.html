@@ -62,6 +62,7 @@ a{color:inherit;}
 .tab[data-accent="technical"].active{border-color:var(--new);}
 .tab[data-accent="evaluation"].active{border-color:var(--solved);}
 .tab[data-accent="implementation"].active{border-color:var(--pending);}
+.tab[data-accent="costs"].active{border-color:var(--escalate);}
 
 .page{display:none; animation:fade .35s ease;}
 .page.active{display:block;}
@@ -211,6 +212,12 @@ tr:last-child td{border-bottom:none;}
 .sources-list li:last-child{border-bottom:none;}
 .sources-list a{color:var(--new); text-decoration:underline;}
 
+.summary-table td, .summary-table th{padding:12px; }
+.summary-table td:nth-child(2), .summary-table th:nth-child(2),
+.summary-table td:nth-child(3), .summary-table th:nth-child(3){font-family:var(--mono); font-size:13px;}
+.summary-table tr.total-row td{border-top:2px solid var(--ink); font-weight:600; padding-top:14px;}
+.summary-table tr.total-row td:first-child{font-family:var(--display);}
+
 footer{padding:40px 28px 60px; text-align:center;}
 footer p{font-family:var(--mono); font-size:12px; color:var(--muted);}
 </style>
@@ -224,6 +231,7 @@ footer p{font-family:var(--mono); font-size:12px; color:var(--muted);}
     <button class="tab" data-accent="technical" onclick="goTo('technical')">Technical Overview</button>
     <button class="tab" data-accent="evaluation" onclick="goTo('evaluation')">Evaluation</button>
     <button class="tab" data-accent="implementation" onclick="goTo('implementation')">Implementation Guide</button>
+    <button class="tab" data-accent="costs" onclick="goTo('costs')">Costs</button>
   </div>
 </nav>
 
@@ -676,6 +684,125 @@ footer p{font-family:var(--mono); font-size:12px; color:var(--muted);}
   </section>
 </div>
 
+<!-- ============ COSTS ============ -->
+<div class="page" id="page-costs">
+  <section style="padding-bottom:0;">
+    <div class="wrap">
+      <div class="eyebrow">Costs</div>
+      <h1 style="color:var(--ink);">What this actually costs</h1>
+      <p class="lede">Rough numbers, not a quote. Four buckets: what Zendesk charges, what running the thing costs month to month, what building it costs once, and what keeping it honest costs going forward — in dollars and in staff time.</p>
+    </div>
+  </section>
+
+  <section style="padding-top:0;">
+    <div class="wrap">
+      <h2>Summary</h2>
+      <table class="summary-table">
+        <tr><th>Line item</th><th>Staff time</th><th>Money</th><th>Type</th></tr>
+        <tr><td>Zendesk (agent seat)</td><td>—</td><td>$228–$1,380/yr</td><td>Recurring</td></tr>
+        <tr><td>Orchestrator (Claude API, Cube, Dagster)</td><td>—</td><td>$40–$750/yr</td><td>Recurring</td></tr>
+        <tr><td>Staff time — setup</td><td>160–240 hrs</td><td>—</td><td>One-time</td></tr>
+        <tr><td>Staff time — maintenance</td><td>76–152 hrs/yr</td><td>—</td><td>Recurring</td></tr>
+        <tr><td>Staff time — evaluation</td><td>40–80 hrs/yr (higher in the first few months)</td><td>—</td><td>Recurring, front-loaded</td></tr>
+        <tr class="total-row"><td>Total staff time, Year 1</td><td>276–472 hrs</td><td>—</td><td>Setup + one year of maintenance/evaluation</td></tr>
+        <tr class="total-row"><td>Total staff time, ongoing (Year 2+)</td><td>116–232 hrs/yr</td><td>—</td><td>Maintenance + evaluation</td></tr>
+        <tr class="total-row"><td>Total vendor/infra cost</td><td>—</td><td>$268–$2,130/yr</td><td>Zendesk + orchestrator, recurring either year</td></tr>
+      </table>
+      <div class="callout">Every number in this table is a rough estimate built from assumptions spelled out in the sections below — not a quote. Staff time is shown in hours only, not converted to a dollar figure — that conversion depends on internal loaded-rate numbers this doc doesn't have. Ticket review time (mostly redistributed from existing work, not new) is deliberately left out of this table — see Ongoing maintenance &amp; evaluation below.</div>
+    </div>
+  </section>
+
+  <section style="padding-top:0;">
+    <div class="wrap">
+      <h2>Zendesk costs</h2>
+      <p>The real cost here is a seat, not a token. Zendesk has no free "API-only" license — any account that can post a public reply, change ticket status, or reassign a ticket needs the <strong>Agent</strong> role, and the Agent role always uses a billed seat, whether a human logs in or a service account calls the API.</p>
+      <table>
+        <tr><th>Item</th><th>Cost</th><th>Notes</th></tr>
+        <tr><td>Service-account agent seat</td><td>1 seat at our current plan's per-agent price</td><td>Likely the same tier we already pay for staff seats — this is one more seat on the existing contract</td></tr>
+        <tr><td>OAuth access token</td><td>$0</td><td>Free to create — the cost is the role attached to it, not the credential itself</td></tr>
+        <tr><td>Zendesk MCP server access</td><td>$0 — already have it</td><td>Already in use internally (a co-worker is on it already), so no new procurement needed here</td></tr>
+        <tr><td>API rate limits / webhook reliability</td><td>Possible plan-tier upgrade</td><td>Contingent — only relevant if our current tier's call volume or webhook guarantees fall short (see Implementation Guide step 01)</td></tr>
+      </table>
+      <div class="callout">Published per-agent/month pricing: Support Team $19, Suite Team $55, Suite Professional $115, Suite Enterprise custom (sales-priced). The actual dollar figure for KTAF depends on which tier we're already on — that needs to come from whoever manages the Zendesk contract, not this doc.</div>
+    </div>
+  </section>
+
+  <section style="padding-top:0;">
+    <div class="wrap">
+      <h2>Orchestrator costs</h2>
+      <p>The running cost of the agent itself — almost entirely Claude API usage, priced per token. Rough math, shown so it can be redone with real numbers once we're live:</p>
+      <div class="code">
+per ticket (Claude Sonnet 5, $3 / $15 per million tokens):<br>
+&nbsp;&nbsp;~7,000 input tokens (ticket + retrieved article/ticket) → $0.021<br>
+&nbsp;&nbsp;~500 output tokens (reply text + tool calls) → $0.0075<br>
+&nbsp;&nbsp;≈ $0.03 / ticket at standard pricing<br>
+&nbsp;&nbsp;≈ $0.02 / ticket under Sonnet 5's introductory rate ($2/$10 per million, through Aug 31, 2026)
+      </div>
+      <p>At pilot volume (one queue, a few thousand eligible tickets a year) that's roughly <strong>$40–$200/year</strong>. Rolled out across every queue, scaling from the ~36,000 tickets logged since 2023, more like <strong>$300–$750/year</strong>.</p>
+      <table>
+        <tr><th>Item</th><th>Cost</th><th>Notes</th></tr>
+        <tr><td>Claude API usage</td><td>~$0.02–$0.05/ticket → ~$40–$750/year depending on rollout scope</td><td>Scales with ticket volume; drops further once prompt caching kicks in on the stable system prompt and tool definitions</td></tr>
+        <tr><td>Cube query usage</td><td>Likely $0 marginal</td><td>Presumably covered under our existing Cube subscription — worth confirming whether Cube meters by query volume</td></tr>
+        <tr><td>Dagster hosting</td><td>$0 marginal</td><td>Existing infra running one more (smaller) job, not a new service</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section style="padding-top:0;">
+    <div class="wrap">
+      <h2>Set-up costs (one-time)</h2>
+      <p>Mapped to the Implementation Guide's eight build steps. These are internal staff hours, not new cash spend — the real cost here is opportunity cost against other roadmap work, not a bill.</p>
+      <table>
+        <tr><th>Step</th><th>Rough time</th><th>Who</th></tr>
+        <tr><td>01–02 · Zendesk access, domain/queue config</td><td>1–2 days</td><td>Engineering</td></tr>
+        <tr><td>03 · Connect to Zendesk MCP + Cube</td><td>3–5 days</td><td>Engineering</td></tr>
+        <tr><td>04 · Write the prompts</td><td>1–2 weeks</td><td>Engineering + data</td></tr>
+        <tr><td>05 · Orchestrator script</td><td>1–2 weeks</td><td>Engineering</td></tr>
+        <tr><td>06 · Dagster scheduling</td><td>&lt; 1 day</td><td>Engineering</td></tr>
+        <tr><td>07 · Promptfoo suite + labeled test set</td><td>2–3 weeks</td><td>Hand-labeling tickets for testing is the largest portion of this task, and vital for testing/refining</td></tr>
+      </table>
+      <div class="callout">Roughly <strong>4–6 person-weeks</strong> (160–240 hours) total, most likely spread across two people working this alongside other priorities, not six straight full-time weeks — internal capacity and opportunity cost against other roadmap work, not new cash spend.</div>
+    </div>
+  </section>
+
+  <section style="padding-top:0;">
+    <div class="wrap">
+      <h2>Ongoing maintenance &amp; evaluation</h2>
+      <p>The recurring cost of keeping this trustworthy, not just running.</p>
+      <table>
+        <tr><th>Item</th><th>$ / staff time</th><th>Notes</th></tr>
+        <tr><td>Weekly Promptfoo suite run</td><td>~$1–2/run in API cost; 1–2 hrs/week reviewing results</td><td>The compute is trivial; the human review of what changed is the real cost</td></tr>
+        <tr><td>Confidence-bar / prompt re-tuning</td><td>2–4 hrs/month</td><td>Owned by whoever runs the evaluation workstream</td></tr>
+        <tr><td>A/B testing &amp; experimentation</td><td>Heaviest in the first few months, then intermittent</td><td>Real time during initial threshold/prompt tuning; once the system is stable, this is realistically a 1–2x/year exercise, not a standing workload</td></tr>
+        <tr><td>Staff review of assigned / escalated tickets</td><td>Mostly redistributed, not new</td><td>Heaviest during the pilot window, when every AI-answered ticket gets reviewed</td></tr>
+        <tr><td>Zendesk agent seat (recurring)</td><td>Same monthly seat cost as above</td><td>Not a separate cost — listed here as a reminder it's ongoing, not one-time</td></tr>
+      </table>
+      <div class="callout">Evaluation costs front-load. The first few months need real attention to get the confidence bar and prompts right; once that settles, ongoing evaluation is closer to periodic check-ins than a standing 0.1–0.2 FTE — worth revisiting at that 1–2x/year cadence rather than budgeting for constant tuning.</div>
+      <div class="code">
+maintenance, steady state:<br>
+&nbsp;&nbsp;weekly suite review: 1–2 hrs/wk × 52 wks → 52–104 hrs/yr<br>
+&nbsp;&nbsp;confidence-bar retuning: 2–4 hrs/mo × 12 → 24–48 hrs/yr<br>
+&nbsp;&nbsp;≈ 76–152 hrs/yr<br>
+<br>
+evaluation, steady state (after the first few months):<br>
+&nbsp;&nbsp;1–2 check-ins/yr × ~20–40 hrs each → 40–80 hrs/yr
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0;">
+    <div class="wrap">
+      <h2>Sources</h2>
+      <ul class="sources-list">
+        <li><a href="https://www.zendesk.com/pricing/">Zendesk Pricing Plans</a></li>
+        <li><a href="https://support.zendesk.com/hc/en-us/articles/4408846314266-What-counts-as-an-agent-license-in-Zendesk">What counts as an agent license in Zendesk? – Zendesk help</a></li>
+        <li><a href="https://support.zendesk.com/hc/en-us/articles/4408881877786-Does-Zendesk-offer-a-free-API-only-agent-license">Does Zendesk offer a free API-only agent license? – Zendesk help</a></li>
+        <li><a href="https://www.eesel.ai/blog/zendesk-licensing">A guide to Zendesk licensing and pricing in 2026 | eesel AI</a></li>
+      </ul>
+    </div>
+  </section>
+</div>
+
 <footer><p>Internal proposal · KTAF Data & Technology · draft for discussion</p></footer>
 
 <script>
@@ -689,7 +816,7 @@ function goTo(name){
 }
 window.addEventListener('DOMContentLoaded', () => {
   const hash = window.location.hash.replace('#','');
-  if(['home','technical','evaluation','implementation'].includes(hash)){
+  if(['home','technical','evaluation','implementation','costs'].includes(hash)){
     goTo(hash);
   }
 });
